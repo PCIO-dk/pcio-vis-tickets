@@ -1,0 +1,240 @@
+/* Member Event – Tickets: event editor "Tickets" tab styles */
+
+.pcio-met-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 4px 0;
+}
+
+.pcio-met-loading {
+	color: #64748b;
+	font-style: italic;
+	margin: 8px 0;
+}
+
+/* Cards */
+.pcio-met-card {
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	background: #f8fafc;
+	padding: 18px 20px;
+}
+
+.pcio-met-h3 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 700;
+	color: #0f172a;
+}
+
+/* Mode banner */
+.pcio-met-mode {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 10px 14px;
+	border-radius: 10px;
+	margin-bottom: 16px;
+	border: 1px solid #e2e8f0;
+	background: #eef2ff;
+}
+.pcio-met-mode.is-tickets {
+	background: #ecfdf5;
+	border-color: #a7f3d0;
+}
+.pcio-met-mode.is-member {
+	background: #eff6ff;
+	border-color: #bfdbfe;
+}
+.pcio-met-mode strong {
+	font-size: 14px;
+	color: #0f172a;
+}
+.pcio-met-mode__hint {
+	font-size: 12px;
+	color: #475569;
+}
+
+/* Field grid */
+.pcio-met-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: 14px 18px;
+}
+
+.pcio-met-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #334155;
+}
+.pcio-met-field__label {
+	font-size: 12px;
+	letter-spacing: .01em;
+}
+.pcio-met-field__help {
+	font-size: 11px;
+	font-weight: 400;
+	color: #64748b;
+}
+
+.pcio-met-field-wrap {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.pcio-met-input {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 8px 10px;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	font-size: 14px;
+	background: #fff;
+	color: #0f172a;
+}
+.pcio-met-input:focus {
+	outline: none;
+	border-color: #6366f1;
+	box-shadow: 0 0 0 3px rgba(99, 102, 241, .15);
+}
+.pcio-met-input[readonly] {
+	background: #f1f5f9;
+	color: #64748b;
+	cursor: default;
+}
+
+/* Checkboxes */
+.pcio-met-checks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 24px;
+	margin-top: 14px;
+}
+.pcio-met-check {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	color: #334155;
+	cursor: pointer;
+}
+.pcio-met-check input {
+	width: 16px;
+	height: 16px;
+	accent-color: #6366f1;
+}
+
+/* Ticket types */
+.pcio-met-types__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 12px;
+}
+.pcio-met-capnote {
+	font-size: 12px;
+	font-weight: 600;
+	color: #047857;
+}
+
+.pcio-met-typelist {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	margin-bottom: 14px;
+}
+
+.pcio-met-empty {
+	margin: 0;
+	color: #64748b;
+	font-style: italic;
+}
+
+.pcio-met-type {
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	background: #fff;
+	padding: 14px 16px;
+}
+.pcio-met-type__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 10px;
+}
+.pcio-met-type__badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 8px;
+	background: #f1f5f9;
+	font-size: 15px;
+}
+.pcio-met-type__badge.is-entrance {
+	background: #ecfdf5;
+}
+.pcio-met-type__foot {
+	display: flex;
+	align-items: center;
+	gap: 12px 20px;
+	flex-wrap: wrap;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px dashed #e2e8f0;
+}
+
+/* Buttons */
+.pcio-met-btn {
+	padding: 8px 14px;
+	border-radius: 8px;
+	border: 1px solid #cbd5e1;
+	background: #fff;
+	color: #0f172a;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+}
+.pcio-met-btn:hover {
+	background: #f1f5f9;
+}
+.pcio-met-btn:disabled {
+	opacity: .55;
+	cursor: not-allowed;
+}
+.pcio-met-btn--add {
+	border-color: #6366f1;
+	color: #4338ca;
+}
+.pcio-met-btn--add:hover {
+	background: #eef2ff;
+}
+.pcio-met-btn--danger {
+	margin-left: auto;
+	border-color: #fecaca;
+	color: #b91c1c;
+}
+.pcio-met-btn--danger:hover {
+	background: #fef2f2;
+}
+
+/* Save status pill */
+.pcio-met-status {
+	font-size: 11px;
+	font-weight: 600;
+	min-height: 14px;
+}
+.pcio-met-status--ok {
+	color: #047857;
+}
+.pcio-met-status--err {
+	color: #b91c1c;
+}

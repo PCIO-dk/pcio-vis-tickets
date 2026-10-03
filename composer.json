@@ -1,0 +1,15 @@
+{
+    "name": "pcio/pcio-vis-tickets",
+    "description": "PCIO VIS Tickets plugin. PDF + QR libraries are now provided by the base PCIO VIS Member Event plugin (pcio-vis-member-event/vendor).",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.1"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.1.0"
+        }
+    }
+}
