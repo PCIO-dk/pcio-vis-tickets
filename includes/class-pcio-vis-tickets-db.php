@@ -43,6 +43,165 @@ class PCIO_VIS_Tickets_DB {
 
     const TICKET_STATUSES = [ 'valid', 'scanned', 'refunded' ];
 
+    /**
+     * Register ticket tables with the core change-history service.
+     *
+     * @param array<string,array> $tables Existing table definitions.
+     * @return array<string,array>
+     */
+    public static function register_history_tables( array $tables ): array {
+        $ignore     = [ 'created', 'updated', 'created_at', 'updated_at' ];
+        $event_link = static function ( array $row ): array {
+            return [ 'event_id' => (int) ( $row['event_id'] ?? 0 ) ];
+        };
+
+        $tables['met_event_settings'] = [
+            'table'  => self::TABLE_SETTINGS,
+            'pk'     => [ 'event_id' ],
+            'auto_increment' => false,
+            'label'  => __( 'Ticket settings', 'pcio-vis-tickets' ),
+            'title'  => static function ( array $row ): string {
+                return sprintf(
+                    /* translators: %d: event ID. */
+                    __( 'Event #%d ticket settings', 'pcio-vis-tickets' ),
+                    (int) ( $row['event_id'] ?? 0 )
+                );
+            },
+            'weight' => 3,
+            'ignore' => $ignore,
+            'fields' => [
+                'max_guests'             => __( 'Guest limit', 'pcio-vis-tickets' ),
+                'is_soldout'             => __( 'Sold out', 'pcio-vis-tickets' ),
+                'hide_remaining'         => __( 'Hide remaining', 'pcio-vis-tickets' ),
+                'max_entrance_per_buyer' => __( 'Max entrance tickets per buyer', 'pcio-vis-tickets' ),
+            ],
+            'links'  => $event_link,
+        ];
+
+        $tables['met_ticket_types'] = [
+            'table'     => self::TABLE_TYPES,
+            'label'     => __( 'Ticket type', 'pcio-vis-tickets' ),
+            'title_col' => 'name',
+            'weight'    => 4,
+            'ignore'    => $ignore,
+            'fields'    => [
+                'name'        => __( 'Name', 'pcio-vis-tickets' ),
+                'is_entrance' => __( 'Entrance ticket', 'pcio-vis-tickets' ),
+                'price_cents' => __( 'Price (cents)', 'pcio-vis-tickets' ),
+                'currency'    => __( 'Currency', 'pcio-vis-tickets' ),
+                'qty_offered' => __( 'Quantity offered', 'pcio-vis-tickets' ),
+                'qty_sold'    => __( 'Quantity sold', 'pcio-vis-tickets' ),
+                'sort'        => __( 'Sort order', 'pcio-vis-tickets' ),
+                'active'      => __( 'Active', 'pcio-vis-tickets' ),
+                'sales_start' => __( 'Sales start', 'pcio-vis-tickets' ),
+                'sales_stop'  => __( 'Sales stop', 'pcio-vis-tickets' ),
+            ],
+            'links'     => $event_link,
+        ];
+
+        $tables['met_customers'] = [
+            'table'    => self::TABLE_CUSTOMERS,
+            'label'    => __( 'Ticket customer', 'pcio-vis-tickets' ),
+            'title_col' => 'email',
+            'undoable' => false,
+            'weight'   => 2,
+            'ignore'   => $ignore,
+            'fields'   => [
+                'email' => __( 'Email', 'pcio-vis-tickets' ),
+                'name'  => __( 'Name', 'pcio-vis-tickets' ),
+                'phone' => __( 'Phone', 'pcio-vis-tickets' ),
+            ],
+        ];
+
+        $tables['met_orders'] = [
+            'table'     => self::TABLE_ORDERS,
+            'label'     => __( 'Ticket order', 'pcio-vis-tickets' ),
+            'title_col' => 'order_no',
+            'undoable'  => false,
+            'weight'    => 6,
+            'ignore'    => $ignore,
+            'large'     => [ 'summary' ],
+            'fields'    => [
+                'order_no'              => __( 'Order number', 'pcio-vis-tickets' ),
+                'event_id'              => __( 'Event', 'pcio-vis-tickets' ),
+                'customer_id'           => __( 'Customer', 'pcio-vis-tickets' ),
+                'email'                 => __( 'Email', 'pcio-vis-tickets' ),
+                'status'                => __( 'Status', 'pcio-vis-tickets' ),
+                'summary'               => __( 'Summary', 'pcio-vis-tickets' ),
+                'amount_cents'          => __( 'Amount (cents)', 'pcio-vis-tickets' ),
+                'refunded_cents'        => __( 'Refunded (cents)', 'pcio-vis-tickets' ),
+                'currency'              => __( 'Currency', 'pcio-vis-tickets' ),
+                'stripe_session_id'     => __( 'Stripe session', 'pcio-vis-tickets' ),
+                'stripe_payment_intent' => __( 'Stripe payment intent', 'pcio-vis-tickets' ),
+                'paid_at'               => __( 'Paid at', 'pcio-vis-tickets' ),
+                'refunded_at'           => __( 'Refunded at', 'pcio-vis-tickets' ),
+            ],
+            'links'     => $event_link,
+        ];
+
+        $tables['met_order_items'] = [
+            'table'    => self::TABLE_ORDER_ITEMS,
+            'label'    => __( 'Ticket order item', 'pcio-vis-tickets' ),
+            'title'    => static function ( array $row ): string {
+                return sprintf(
+                    /* translators: 1: order ID, 2: ticket type ID. */
+                    __( 'Order #%1$d ticket type #%2$d', 'pcio-vis-tickets' ),
+                    (int) ( $row['order_id'] ?? 0 ),
+                    (int) ( $row['ticket_type_id'] ?? 0 )
+                );
+            },
+            'undoable' => false,
+            'weight'   => 2,
+            'ignore'   => $ignore,
+            'fields'   => [
+                'order_id'         => __( 'Order', 'pcio-vis-tickets' ),
+                'ticket_type_id'   => __( 'Ticket type', 'pcio-vis-tickets' ),
+                'qty'              => __( 'Quantity', 'pcio-vis-tickets' ),
+                'unit_price_cents' => __( 'Unit price (cents)', 'pcio-vis-tickets' ),
+            ],
+            'links'    => static function ( array $row ): array {
+                return self::event_link_for_order( (int) ( $row['order_id'] ?? 0 ) );
+            },
+        ];
+
+        $tables['met_tickets'] = [
+            'table'     => self::TABLE_TICKETS,
+            'label'     => __( 'Ticket', 'pcio-vis-tickets' ),
+            'title_col' => 'code',
+            'undoable'  => false,
+            'weight'    => 3,
+            'ignore'    => $ignore,
+            'fields'    => [
+                'order_id'       => __( 'Order', 'pcio-vis-tickets' ),
+                'ticket_type_id' => __( 'Ticket type', 'pcio-vis-tickets' ),
+                'code'           => __( 'Code', 'pcio-vis-tickets' ),
+                'attendee_name'  => __( 'Attendee name', 'pcio-vis-tickets' ),
+                'status'         => __( 'Status', 'pcio-vis-tickets' ),
+            ],
+            'links'     => static function ( array $row ): array {
+                return self::event_link_for_order( (int) ( $row['order_id'] ?? 0 ) );
+            },
+        ];
+
+        return $tables;
+    }
+
+    /**
+     * Resolve an order row to its event link for history tabs.
+     *
+     * @return array{event_id?:int}
+     */
+    private static function event_link_for_order( int $order_id ): array {
+        global $wpdb;
+        if ( $order_id < 1 ) {
+            return [];
+        }
+        $event_id = (int) $wpdb->get_var(
+            $wpdb->prepare( 'SELECT event_id FROM %i WHERE id = %d', self::t_orders(), $order_id )
+        );
+        return $event_id > 0 ? [ 'event_id' => $event_id ] : [];
+    }
+
     // ── Table-name helpers ────────────────────────────────────────
 
     public static function t_settings(): string {
@@ -181,12 +340,21 @@ class PCIO_VIS_Tickets_DB {
                 code           VARCHAR(64)  NOT NULL DEFAULT '',
                 attendee_name  VARCHAR(200) NULL DEFAULT NULL,
                 status         VARCHAR(20)  NOT NULL DEFAULT 'valid',
+                scanned_at     DATETIME     NULL DEFAULT NULL,
                 created        DATETIME     DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY  (id),
                 UNIQUE KEY idx_tickets_code (code),
                 KEY idx_tickets_order (order_id)
                 ) {$charset};"
         );
+
+        // Column added after 1.0.0; dbDelta only adds tables, so patch up here.
+        $tickets_table = self::t_tickets();
+        $cols          = $wpdb->get_col( $wpdb->prepare( 'SHOW COLUMNS FROM %i', $tickets_table ), 0 );
+        if ( ! in_array( 'scanned_at', (array) $cols, true ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- One-off column back-fill for installs upgraded from 1.0.0.
+            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i ADD COLUMN scanned_at DATETIME NULL DEFAULT NULL', $tickets_table ) );
+        }
 
         update_option( 'pcio_met_db_version', PCIO_VIS_TICKETS_VERSION );
     }
@@ -223,6 +391,31 @@ class PCIO_VIS_Tickets_DB {
     }
 
     /**
+     * Return the subset of the given event IDs flagged as sold out (one query).
+     *
+     * @param int[] $event_ids Event IDs to check.
+     * @return int[]
+     */
+    public static function get_soldout_event_ids( array $event_ids ): array {
+        global $wpdb;
+        $event_ids = array_values( array_unique( array_filter( array_map( 'absint', $event_ids ) ) ) );
+        if ( ! $event_ids ) {
+            return [];
+        }
+        $placeholders = implode( ',', array_fill( 0, count( $event_ids ), '%d' ) );
+        // phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated list of %d, one argument per event id.
+        $ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT event_id FROM %i WHERE is_soldout = 1 AND event_id IN ($placeholders)",
+                self::t_settings(),
+                ...$event_ids
+            )
+        );
+        // phpcs:enable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return array_map( 'intval', $ids );
+    }
+
+    /**
      * Insert or update the ticket settings for an event (upsert by event_id).
      *
      * @param array $data Any subset of max_guests, is_soldout, hide_remaining,
@@ -243,16 +436,16 @@ class PCIO_VIS_Tickets_DB {
         );
 
         if ( $exists ) {
-            $wpdb->update(
-                self::t_settings(),
+            PCIO_VIS_History::update(
+                'met_event_settings',
                 $merged + [ 'updated' => current_time( 'mysql' ) ],
                 [ 'event_id' => $event_id ],
                 [ '%d', '%d', '%d', '%d', '%s' ],
                 [ '%d' ]
             );
         } else {
-            $wpdb->insert(
-                self::t_settings(),
+            PCIO_VIS_History::insert(
+                'met_event_settings',
                 $merged + [ 'event_id' => $event_id ],
                 [ '%d', '%d', '%d', '%d', '%d' ]
             );
@@ -297,8 +490,8 @@ class PCIO_VIS_Tickets_DB {
             $wpdb->prepare( 'SELECT COALESCE(MAX(sort),0)+1 FROM %i WHERE event_id = %d', self::t_types(), $event_id )
         );
         $clean = self::sanitize_type( $data );
-        $wpdb->insert(
-            self::t_types(),
+        PCIO_VIS_History::insert(
+            'met_ticket_types',
             [
                 'event_id'    => $event_id,
                 'name'        => $clean['name'] ?? '',
@@ -331,7 +524,7 @@ class PCIO_VIS_Tickets_DB {
         }
         $clean['updated'] = current_time( 'mysql' );
         $formats[]        = '%s';
-        return false !== $wpdb->update( self::t_types(), $clean, [ 'id' => $id ], $formats, [ '%d' ] );
+        return false !== PCIO_VIS_History::update( 'met_ticket_types', $clean, [ 'id' => $id ], $formats, [ '%d' ] );
     }
 
     /**
@@ -345,7 +538,7 @@ class PCIO_VIS_Tickets_DB {
         if ( $sold > 0 ) {
             return false;
         }
-        return false !== $wpdb->delete( self::t_types(), [ 'id' => $id ], [ '%d' ] );
+        return false !== PCIO_VIS_History::delete( 'met_ticket_types', [ 'id' => $id ], [ '%d' ] );
     }
 
     /**
@@ -472,8 +665,8 @@ class PCIO_VIS_Tickets_DB {
         );
         if ( $id ) {
             if ( $name !== '' || $phone !== '' ) {
-                $wpdb->update(
-                    self::t_customers(),
+                PCIO_VIS_History::update(
+                    'met_customers',
                     array_filter( [
                         'name'  => sanitize_text_field( $name ),
                         'phone' => sanitize_text_field( $phone ),
@@ -483,8 +676,8 @@ class PCIO_VIS_Tickets_DB {
             }
             return $id;
         }
-        $wpdb->insert(
-            self::t_customers(),
+        PCIO_VIS_History::insert(
+            'met_customers',
             [
                 'email' => $email,
                 'name'  => sanitize_text_field( $name ),
@@ -499,8 +692,8 @@ class PCIO_VIS_Tickets_DB {
 
     public static function create_order( array $data ): int {
         global $wpdb;
-        $wpdb->insert(
-            self::t_orders(),
+        PCIO_VIS_History::insert(
+            'met_orders',
             [
                 'order_no'     => self::generate_order_no(),
                 'token'        => self::generate_token(),
@@ -545,8 +738,7 @@ class PCIO_VIS_Tickets_DB {
     }
 
     public static function update_order( int $id, array $data, array $formats ): bool {
-        global $wpdb;
-        return false !== $wpdb->update( self::t_orders(), $data, [ 'id' => $id ], $formats, [ '%d' ] );
+        return false !== PCIO_VIS_History::update( 'met_orders', $data, [ 'id' => $id ], $formats, [ '%d' ] );
     }
 
     /**
@@ -766,8 +958,8 @@ class PCIO_VIS_Tickets_DB {
 
     public static function add_order_item( int $order_id, int $type_id, int $qty, int $unit_price_cents ): void {
         global $wpdb;
-        $wpdb->insert(
-            self::t_order_items(),
+        PCIO_VIS_History::insert(
+            'met_order_items',
             [
                 'order_id'         => $order_id,
                 'ticket_type_id'   => $type_id,
@@ -792,8 +984,8 @@ class PCIO_VIS_Tickets_DB {
 
     public static function create_ticket( int $order_id, int $type_id, ?string $attendee_name = null ): int {
         global $wpdb;
-        $wpdb->insert(
-            self::t_tickets(),
+        PCIO_VIS_History::insert(
+            'met_tickets',
             [
                 'order_id'       => $order_id,
                 'ticket_type_id' => $type_id,
@@ -814,6 +1006,42 @@ class PCIO_VIS_Tickets_DB {
             ARRAY_A
         );
         return $rows ?: [];
+    }
+
+    public static function get_ticket( int $id ): ?array {
+        global $wpdb;
+        $row = $wpdb->get_row(
+            $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d LIMIT 1', self::t_tickets(), $id ),
+            ARRAY_A
+        );
+        return $row ?: null;
+    }
+
+    /** Unused (valid) ticket ids for one order + type, oldest first. */
+    public static function unused_ticket_ids( int $order_id, int $type_id, int $limit ): array {
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $limit is intvalled below.
+        $rows = $wpdb->get_col( $wpdb->prepare(
+            'SELECT id FROM %i WHERE order_id = %d AND ticket_type_id = %d AND status = %s ORDER BY id ASC LIMIT %d',
+            self::t_tickets(), $order_id, $type_id, 'valid', max( 0, $limit )
+        ) );
+        return array_map( 'intval', (array) $rows );
+    }
+
+    /** Mark tickets as scanned (self-activated at the door). */
+    public static function mark_tickets_scanned( array $ids ): int {
+        if ( empty( $ids ) ) {
+            return 0;
+        }
+        $ids = array_map( 'intval', $ids );
+        global $wpdb;
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $placeholders is a generated list of %d and prepare() receives the values as an array.
+        return (int) $wpdb->query( $wpdb->prepare(
+            "UPDATE %i SET status = 'scanned', scanned_at = %s WHERE id IN ($placeholders) AND status = 'valid'",
+            array_merge( [ self::t_tickets(), current_time( 'mysql' ) ], $ids )
+        ) );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
     }
 
     // ── Internal helpers ──────────────────────────────────────────

@@ -32,10 +32,16 @@ class PCIO_VIS_Tickets_Integration {
         // Suppress the core member-signup UI when an event sells tickets.
         add_filter( 'pcio_me_event_signup_enabled', [ $this, 'maybe_disable_signup' ], 10, 2 );
 
+        // Add a "Ticket sales" option to the event editor's sign-up mode dropdown.
+        add_filter( 'pcio_me_event_signup_modes', [ $this, 'register_signup_mode' ] );
+
         // Public event page: render the "Buy tickets" action inside the right-bar
         // signup box (replacing the member signup controls) for ticket events.
         add_filter( 'pcio_me_event_signup_heading', [ $this, 'signup_heading' ], 10, 2 );
         add_filter( 'pcio_me_event_signup_box',     [ $this, 'signup_box' ],     10, 3 );
+
+        // [pcio_me_events] list: mark events flagged "Sold out" with a banner.
+        add_filter( 'pcio_me_events_soldout_ids', [ $this, 'soldout_event_ids' ], 10, 2 );
 
         // Finance section: register a read-only "Orders" list. Orders are a live
         // mirror of Stripe; the core journal is a separate, manual-only ledger.
@@ -112,11 +118,22 @@ class PCIO_VIS_Tickets_Integration {
         $this->enqueue_editor_assets( $event_id );
 
         $tabs[] = [
-            'id'    => 'tickets',
-            'label' => __( 'Tickets', 'pcio-vis-tickets' ),
-            'html'  => '<div id="pcio-met-editor" class="pcio-met-editor" data-event="' . esc_attr( (string) $event_id ) . '">'
-                     . '<p class="pcio-met-loading">' . esc_html__( 'Loading ticket settings…', 'pcio-vis-tickets' ) . '</p>'
-                     . '</div>',
+            'id'            => 'tickets',
+            'label'         => __( 'Tickets', 'pcio-vis-tickets' ),
+            'signup_modes'  => [ 'tickets' ],
+            'inactive_text' => __( 'Tickets are NOT sold through the Vis ticket system for this event. Choose "Ticket sales" under Sign-up on the Basic tab to sell tickets here.', 'pcio-vis-tickets' ),
+            'html'          => '<div id="pcio-met-editor" class="pcio-met-editor" data-event="' . esc_attr( (string) $event_id ) . '">'
+                             . '<p class="pcio-met-loading">' . esc_html__( 'Loading ticket settings…', 'pcio-vis-tickets' ) . '</p>'
+                             . '</div>',
+        ];
+        $tabs[] = [
+            'id'            => 'sales',
+            'label'         => __( 'Sales', 'pcio-vis-tickets' ),
+            'signup_modes'  => [ 'tickets' ],
+            'inactive_text' => __( 'Ticket sales are only shown for events using "Ticket sales" under Sign-up on the Basic tab.', 'pcio-vis-tickets' ),
+            'html'          => '<div id="pcio-met-sales" class="pcio-met-editor" data-event="' . esc_attr( (string) $event_id ) . '">'
+                             . '<p class="pcio-met-loading">' . esc_html__( 'Loading sales…', 'pcio-vis-tickets' ) . '</p>'
+                             . '</div>',
         ];
         return $tabs;
     }
@@ -137,9 +154,22 @@ class PCIO_VIS_Tickets_Integration {
             [],
             PCIO_VIS_TICKETS_VERSION
         );
+        wp_enqueue_style(
+            'pcio-met-sales-tab',
+            plugins_url( 'assets/sales-tab.css', PCIO_VIS_TICKETS_FILE ),
+            [ 'pcio-me-app' ],
+            PCIO_VIS_TICKETS_VERSION
+        );
         wp_enqueue_script(
             'pcio-met-ticket-tab',
             plugins_url( 'assets/ticket-tab.js', PCIO_VIS_TICKETS_FILE ),
+            [],
+            PCIO_VIS_TICKETS_VERSION,
+            true
+        );
+        wp_enqueue_script(
+            'pcio-met-sales-tab',
+            plugins_url( 'assets/sales-tab.js', PCIO_VIS_TICKETS_FILE ),
             [],
             PCIO_VIS_TICKETS_VERSION,
             true
@@ -155,6 +185,16 @@ class PCIO_VIS_Tickets_Integration {
                 'settings' => $settings,
                 'types'    => $types,
                 'i18n'     => $this->editor_i18n(),
+            ] ) . ';',
+            'before'
+        );
+        wp_add_inline_script(
+            'pcio-met-sales-tab',
+            'window.PCIO_MET_SALES = ' . wp_json_encode( [
+                'rest'    => rest_url( PCIO_VIS_REST_NS . '/tickets' ),
+                'nonce'   => wp_create_nonce( 'wp_rest' ),
+                'eventId' => $event_id,
+                'i18n'    => $this->sales_i18n(),
             ] ) . ';',
             'before'
         );
@@ -197,7 +237,42 @@ class PCIO_VIS_Tickets_Integration {
         ];
     }
 
-    // ── Mode wiring ───────────────────────────────────────────────
+    /**
+     * Strings used by the sales tab JS.
+     *
+     * @return array<string,string>
+     */
+    private function sales_i18n(): array {
+        return [
+            'loading'      => __( 'Loading sales…', 'pcio-vis-tickets' ),
+            'loadError'    => __( 'Could not load sales: ', 'pcio-vis-tickets' ),
+            'noOrders'     => __( 'No orders yet for this event.', 'pcio-vis-tickets' ),
+            'summaryTitle' => __( 'Sales by ticket type', 'pcio-vis-tickets' ),
+            'colType'      => __( 'Ticket type', 'pcio-vis-tickets' ),
+            'colSold'      => __( 'Sold', 'pcio-vis-tickets' ),
+            'colGross'     => __( 'Gross', 'pcio-vis-tickets' ),
+            'colRefunded'  => __( 'Refunded', 'pcio-vis-tickets' ),
+            'ordersTitle'  => __( 'Orders', 'pcio-vis-tickets' ),
+            'colDate'      => __( 'Date', 'pcio-vis-tickets' ),
+            'colOrder'     => __( 'Order', 'pcio-vis-tickets' ),
+            'colBuyer'     => __( 'Buyer', 'pcio-vis-tickets' ),
+            'colEmail'     => __( 'Email', 'pcio-vis-tickets' ),
+            'colProducts'  => __( 'Tickets', 'pcio-vis-tickets' ),
+            'colAmount'    => __( 'Amount', 'pcio-vis-tickets' ),
+            'colStatus'    => __( 'Status', 'pcio-vis-tickets' ),
+            'colStripe'    => __( 'Stripe', 'pcio-vis-tickets' ),
+            'stripeView'   => __( 'View', 'pcio-vis-tickets' ),
+            'refund'       => __( 'Refund', 'pcio-vis-tickets' ),
+            'resend'       => __( 'Resend email', 'pcio-vis-tickets' ),
+            'refundTitle'  => __( 'Refund order', 'pcio-vis-tickets' ),
+            'refundDone'   => __( 'Order refunded.', 'pcio-vis-tickets' ),
+            'refundFailed' => __( 'Refund failed.', 'pcio-vis-tickets' ),
+            // translators: %s: buyer email address.
+            'resendConfirm' => __( 'Send tickets again to %s?', 'pcio-vis-tickets' ),
+            'resendDone'   => __( 'The tickets have been sent.', 'pcio-vis-tickets' ),
+            'resendFailed' => __( 'Could not resend the email.', 'pcio-vis-tickets' ),
+        ];
+    }
 
     /**
      * Disable the built-in member signup UI when an event sells tickets.
@@ -210,6 +285,31 @@ class PCIO_VIS_Tickets_Integration {
             return false;
         }
         return $enabled;
+    }
+
+    /**
+     * Add the "Ticket sales" option to the core event sign-up mode dropdown.
+     * Hooked on `pcio_me_event_signup_modes`.
+     *
+     * @param array<string,string> $modes
+     * @return array<string,string>
+     */
+    public function register_signup_mode( array $modes ): array {
+        $modes['tickets'] = __( 'Ticket sales', 'pcio-vis-tickets' );
+        return $modes;
+    }
+
+    /**
+     * Add events flagged "Sold out" to the core list of sold-out event IDs.
+     *
+     * Hooked on `pcio_me_events_soldout_ids`.
+     *
+     * @param int[] $soldout   Sold-out IDs collected so far.
+     * @param int[] $event_ids Event IDs being rendered.
+     * @return int[]
+     */
+    public function soldout_event_ids( array $soldout, array $event_ids ): array {
+        return array_merge( $soldout, PCIO_VIS_Tickets_DB::get_soldout_event_ids( $event_ids ) );
     }
 
     // ── Public ticket purchase (right-bar signup box) ─────────────
@@ -365,7 +465,7 @@ class PCIO_VIS_Tickets_Integration {
 
         $lists[] = [
             'id'         => 'orders',
-            'label'      => __( 'Ticket Orders', 'pcio-vis-tickets' ),
+            'label'      => __( 'Ticket sales', 'pcio-vis-tickets' ),
             'rest'       => rest_url( PCIO_VIS_REST_NS . '/tickets/orders' ),
             'editable'   => false,
             'canEdit'    => false,

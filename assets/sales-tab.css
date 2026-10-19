@@ -1,0 +1,134 @@
+/* Member Event – Tickets: event editor "Sales" tab styles.
+ * Layout roles mirror the core members list (members.css): a toolbar with a
+ * count line, a black gradient header row, a filter row beneath it, and a
+ * light rounded card around the whole list. The .pcio-mets- prefix keeps the
+ * tab-local rules from colliding with core classes. */
+
+.pcio-mets-summary {
+	margin: 0 0 20px;
+}
+
+.pcio-mets-card {
+	margin-top: 16px;
+}
+
+.pcio-mets-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 20px;
+	background: #f8fafc;
+	border-bottom: 1px solid #e8edf2;
+}
+
+.pcio-mets-count {
+	font-size: 12.5px;
+	color: #64748b;
+}
+
+.pcio-mets-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13.5px;
+}
+
+.pcio-mets-table thead tr.pcio-mets-head-row {
+	background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);
+}
+
+.pcio-mets-table thead tr.pcio-mets-head-row th {
+	padding: 12px 16px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	color: #64748b;
+	white-space: nowrap;
+	border: none;
+	text-align: left;
+	user-select: none;
+}
+
+.pcio-mets-table thead tr.pcio-mets-head-row th.pcio-mets-sortable {
+	cursor: pointer;
+	color: #94a3b8;
+}
+
+.pcio-mets-table thead tr.pcio-mets-head-row th.pcio-mets-sortable:hover {
+	color: #e2e8f0;
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.pcio-mets-sort {
+	background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	text-transform: inherit;
+	letter-spacing: inherit;
+	cursor: pointer;
+}
+
+.pcio-mets-table thead tr.pcio-mets-filter-row {
+	background: #f1f5f9;
+}
+
+.pcio-mets-table thead tr.pcio-mets-filter-row td {
+	padding: 7px 10px;
+	border: none;
+	border-bottom: 2px solid #dde3ea;
+}
+
+.pcio-mets-filter {
+	width: 100%;
+	padding: 5px 9px;
+	font-size: 12px;
+	border: 1.5px solid #dde3ea;
+	border-radius: 6px;
+	background: #fff;
+	color: #334155;
+	box-sizing: border-box;
+}
+
+.pcio-mets-filter:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.pcio-mets-table tbody tr {
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.pcio-mets-table tbody tr:last-child {
+	border-bottom: none;
+}
+
+.pcio-mets-table tbody tr:hover {
+	background: #eff6ff;
+}
+
+.pcio-mets-table tbody td {
+	padding: 12px 16px;
+	color: #334155;
+	border: none;
+	vertical-align: middle;
+}
+
+.pcio-mets-table tfoot td {
+	padding: 12px 16px;
+	color: #0f172a;
+	border: none;
+	border-top: 2px solid #dde3ea;
+}
+
+.pcio-mets-refunded {
+	color: #b91c1c;
+	font-size: 12px;
+}
+
+.pcio-mets-actions {
+	white-space: nowrap;
+}

@@ -1,0 +1,135 @@
+/* Tickets extension – guest self-activation page ("Use ticket").
+ * Ported from the legacy activate_billet.php styles. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body.pcio-act {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	background: #eef0f3;
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.pcio-act-card {
+	background: #fff;
+	border-radius: 20px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
+	max-width: 420px;
+	width: 100%;
+	overflow: hidden;
+}
+
+.pcio-act-header { padding: 30px 24px 22px; text-align: center; color: #fff; }
+.st-ready { background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); }
+.st-error { background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%); }
+.st-used { background: linear-gradient(135deg, #43a047 0%, #1b5e20 100%); }
+.st-wait { background: linear-gradient(135deg, #fb8c00 0%, #e65100 100%); }
+
+.pcio-act-icon { font-size: 54px; margin-bottom: 10px; }
+.pcio-act-title { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.pcio-act-event { font-size: 15px; opacity: 0.92; margin-bottom: 3px; }
+.pcio-act-ticket { font-size: 19px; font-weight: 600; }
+.pcio-act-buyer { font-size: 14px; opacity: 0.85; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.3); }
+
+.pcio-act-body { padding: 26px 24px; }
+.pcio-act-msg { font-size: 16px; color: #444; text-align: center; margin-bottom: 24px; }
+
+.swipe-wrap {
+	position: relative;
+	width: 100%; height: 64px;
+	background: #e8f0fe;
+	border-radius: 32px;
+	overflow: hidden;
+	user-select: none;
+	touch-action: none;
+	border: 2px solid #1a73e8;
+}
+.swipe-label {
+	position: absolute; inset: 0;
+	display: flex; align-items: center; justify-content: center;
+	font-size: 15px; font-weight: 600; color: #1a73e8;
+	pointer-events: none; letter-spacing: 0.4px;
+}
+.swipe-thumb {
+	position: absolute;
+	top: 5px; left: 5px;
+	width: 54px; height: 54px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #1a73e8, #0d47a1);
+	display: flex; align-items: center; justify-content: center;
+	color: #fff; font-size: 24px;
+	cursor: grab;
+	box-shadow: 0 2px 8px rgba(26, 115, 232, 0.45);
+	transition: box-shadow 0.15s;
+}
+.swipe-thumb.dragging { cursor: grabbing; box-shadow: 0 4px 18px rgba(26, 115, 232, 0.65); }
+.swipe-thumb.success { background: linear-gradient(135deg, #43a047, #1b5e20); cursor: default; }
+
+.error-box {
+	background: #fdecea; color: #c62828;
+	border-radius: 8px; padding: 12px 16px;
+	font-size: 14px; text-align: center;
+	margin-top: 16px; display: none;
+}
+
+#ticket-selector { margin-bottom: 18px; }
+.ticket-row {
+	display: flex; align-items: center; justify-content: space-between;
+	padding: 10px 14px; border-radius: 12px;
+	background: #f4f6fb; margin-bottom: 8px;
+	gap: 8px;
+}
+.ticket-row-info { flex: 1; min-width: 0; }
+.ticket-row-name { font-size: 14px; font-weight: 600; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ticket-row-avail { font-size: 12px; color: #666; margin-top: 2px; }
+.ticket-qty { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.qty-btn {
+	width: 34px; height: 34px; border-radius: 50%;
+	border: 2px solid #1a73e8; background: #fff;
+	color: #1a73e8; font-size: 22px; line-height: 1;
+	cursor: pointer; font-weight: 700;
+	display: flex; align-items: center; justify-content: center;
+	padding: 0; transition: background 0.12s, color 0.12s;
+}
+.qty-btn:disabled { border-color: #ccc; color: #ccc; cursor: default; }
+.qty-btn:not(:disabled):active { background: #1a73e8; color: #fff; }
+.qty-val { font-size: 20px; font-weight: 700; color: #1a73e8; min-width: 26px; text-align: center; }
+.ticket-row.qty-zero { opacity: 0.55; }
+
+#cd-overlay { display: none; position: fixed; inset: 0; z-index: 9999; overflow: hidden; }
+#cd-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#cd-body {
+	position: relative; z-index: 1;
+	height: 100%;
+	display: flex; flex-direction: column;
+	align-items: center; justify-content: center;
+	color: #fff; text-align: center; padding: 28px;
+	gap: 6px;
+}
+#cd-check { font-size: 70px; }
+#cd-event { font-size: 22px; font-weight: 700; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); }
+#cd-ticket { font-size: 17px; opacity: 0.92; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); }
+#cd-summary {
+	font-size: 15px; opacity: 0.9; margin-bottom: 20px;
+	background: rgba(0, 0, 0, 0.22); border-radius: 10px;
+	padding: 8px 18px; line-height: 1.7;
+	text-align: center;
+}
+#cd-timer {
+	font-size: 88px; font-weight: 900; line-height: 1;
+	font-variant-numeric: tabular-nums; letter-spacing: -2px;
+	text-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+}
+#cd-label { font-size: 16px; opacity: 0.82; margin-bottom: 24px; }
+#cd-clock {
+	font-size: 30px; font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	background: rgba(0, 0, 0, 0.28); padding: 9px 22px; border-radius: 14px;
+	text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+#cd-expired {
+	display: none; font-size: 22px; font-weight: 600;
+	background: rgba(0, 0, 0, 0.35); padding: 20px 28px; border-radius: 16px;
+}

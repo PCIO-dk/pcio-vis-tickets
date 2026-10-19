@@ -30,6 +30,16 @@ class PCIO_VIS_Tickets_Rest {
             ],
         ] );
 
+        // Event editor "Sales" tab — per-type summary + order list for one event.
+        register_rest_route( $ns, '/tickets/events/(?P<eid>\d+)/sales', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [ $this, 'get_sales' ],
+                'permission_callback' => [ $this, 'can_manage' ],
+                'args'                => [ 'eid' => self::id_arg() ],
+            ],
+        ] );
+
         register_rest_route( $ns, '/tickets/events/(?P<eid>\d+)/settings', [
             [
                 'methods'             => WP_REST_Server::EDITABLE,
@@ -212,6 +222,93 @@ class PCIO_VIS_Tickets_Rest {
         return new WP_REST_Response( $this->event_payload( $eid ), 200 );
     }
 
+    /**
+     * Sales payload for the event editor "Sales" tab: per-type sold/refunded
+     * summary plus the event's orders (newest first) with buyer names.
+     */
+    public function get_sales( WP_REST_Request $req ): WP_REST_Response {
+        $eid = (int) $req->get_param( 'eid' );
+        try {
+            $types  = PCIO_VIS_Tickets_DB::get_types( $eid );
+            $orders = PCIO_VIS_Tickets_DB::list_orders( [ 'event_id' => $eid, 'limit' => 1000, 'offset' => 0 ] );
+            $names  = [];
+            foreach ( $types as $type ) {
+                $names[ (int) $type['id'] ] = (string) $type['name'];
+            }
+            $summary = [];
+            foreach ( $types as $type ) {
+                $summary[ (int) $type['id'] ] = [
+                    'name'     => (string) $type['name'],
+                    'sold'     => 0,
+                    'gross'    => 0,
+                    'refunded' => 0,
+                ];
+            }
+            $rows = [];
+            foreach ( $orders as $order ) {
+                $customer = ! empty( $order['customer_id'] )
+                    ? PCIO_VIS_Tickets_DB::get_customer( (int) $order['customer_id'] )
+                    : null;
+                $total      = (int) $order['amount_cents'];
+                $refunded   = (int) $order['refunded_cents'];
+                $refundable = max( 0, $total - $refunded );
+                // Per-type breakdown of this order.
+                $items = PCIO_VIS_Tickets_DB::get_order_items( (int) $order['id'] );
+                $parts = [];
+                foreach ( $items as $item ) {
+                    $tid = (int) $item['ticket_type_id'];
+                    $qty = (int) $item['qty'];
+                    $parts[] = $qty . ' × ' . ( $names[ $tid ] ?? '' );
+                    if ( isset( $summary[ $tid ] ) ) {
+                        $summary[ $tid ]['sold']  += $qty;
+                        $summary[ $tid ]['gross'] += $qty * (int) $item['unit_price_cents'];
+                    }
+                }
+                $status = (string) $order['status'];
+                if ( $refunded > 0 ) {
+                    // Attribute refunded cents to types pro-rata by gross.
+                    $gross = 0;
+                    foreach ( $items as $item ) {
+                        $gross += (int) $item['qty'] * (int) $item['unit_price_cents'];
+                    }
+                    foreach ( $items as $item ) {
+                        $tid = (int) $item['ticket_type_id'];
+                        if ( isset( $summary[ $tid ] ) && $gross > 0 ) {
+                            $summary[ $tid ]['refunded'] += (int) round( $refunded * (int) $item['qty'] * (int) $item['unit_price_cents'] / $gross );
+                        }
+                    }
+                }
+                $rows[] = [
+                    'id'               => (int) $order['id'],
+                    'entry_date'       => (string) ( $order['paid_at'] ?: $order['created'] ),
+                    'order_no'         => (string) $order['order_no'],
+                    'buyer'            => $customer && ! empty( $customer['name'] ) ? (string) $customer['name'] : (string) $order['email'],
+                    'email'            => (string) $order['email'],
+                    'products'         => implode( ', ', $parts ),
+                    'amount_cents'     => $total,
+                    'refunded_cents'   => $refunded,
+                    'refundable_cents' => $refundable,
+                    'currency'         => (string) $order['currency'],
+                    'status'           => self::order_status_label( $status ),
+                    'status_key'       => $status,
+                    'stripe_url'       => ! empty( $order['stripe_payment_intent'] ) ? $this->stripe_url( $order['stripe_payment_intent'] ) : '',
+                    'can_refund'       => in_array( $status, [ 'paid', 'partly_refunded', 'free_confirmed' ], true ) && ( $refundable > 0 || $total <= 0 ),
+                    'can_resend'       => in_array( $status, [ 'paid', 'free_confirmed', 'partly_refunded' ], true ),
+                ];
+            }
+            return new WP_REST_Response( [ 'summary' => array_values( $summary ), 'orders' => $rows ], 200 );
+        } catch ( \Throwable $e ) {
+            return new WP_REST_Response( [ 'message' => $e->getMessage() ], 500 );
+        }
+    }
+
+    private function stripe_url( $payment_intent ): string {
+        $base = PCIO_VIS_Tickets_Admin::stripe_mode() === 'live'
+            ? 'https://dashboard.stripe.com/payments/'
+            : 'https://dashboard.stripe.com/test/payments/';
+        return $base . $payment_intent;
+    }
+
     public function update_settings( WP_REST_Request $req ): WP_REST_Response {
         $eid  = (int) $req->get_param( 'eid' );
         $body = (array) $req->get_json_params();
@@ -330,6 +427,9 @@ class PCIO_VIS_Tickets_Rest {
         $event_id = absint( $body['event_id'] ?? 0 );
         $event    = $event_id ? PCIO_VIS_Events_DB::get( $event_id ) : null;
         if ( ! $event ) {
+            return new WP_REST_Response( [ 'message' => __( 'Event not found.', 'pcio-vis-tickets' ) ], 404 );
+        }
+        if ( ! PCIO_VIS_Events_DB::is_published( $event ) ) {
             return new WP_REST_Response( [ 'message' => __( 'Event not found.', 'pcio-vis-tickets' ) ], 404 );
         }
         if ( PCIO_VIS_Tickets_DB::event_mode( $event_id ) !== 'tickets' ) {

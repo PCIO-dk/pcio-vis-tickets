@@ -3,7 +3,7 @@
 Plugin Name:  PCIO VIS Tickets
 Plugin URI:   https://www.pcio.dk/
 Description:  Adds paid (Stripe) and free ticket sales to PCIO VIS Member Event. Events with a guest limit sell tickets to the public; per-event ticket types, a secure checkout, PDF tickets with QR codes, and refunds. Events without a limit keep the member join/interested/not-joining signup.
-Version:      1.0.0
+Version:      1.1.0
 Author:       PCIO
 Author URI:   https://www.pcio.dk
 Requires at least: 6.2
@@ -52,6 +52,7 @@ class PCIO_VIS_Tickets_Plugin {
         add_action( 'admin_init',    [ 'PCIO_VIS_Tickets_DB', 'install' ] );
         add_action( 'rest_api_init', [ __CLASS__, 'register_rest'   ] );
         add_action( self::CRON_CLEANUP, [ __CLASS__, 'cleanup_pending' ] );
+        add_filter( 'pcio_me_history_tables', [ 'PCIO_VIS_Tickets_DB', 'register_history_tables' ] );
 
         ( new PCIO_VIS_Tickets_Admin() )->register();
         ( new PCIO_VIS_Tickets_Frontend() )->register();

@@ -1,0 +1,821 @@
+# Danish translation for PCIO VIS Tickets
+# Copyright (C) 2026 PCIO
+# This file is distributed under the GPL2 license.
+msgid ""
+msgstr ""
+"Project-Id-Version: PCIO VIS Tickets 1.0.0\n"
+"Report-Msgid-Bugs-To: https://www.pcio.dk/\n"
+"POT-Creation-Date: 2026-06-16 18:45+0000\n"
+"PO-Revision-Date: 2026-10-18 22:11+0200\n"
+"Last-Translator: PCIO <info@pcio.dk>\n"
+"Language-Team: Danish\n"
+"Language: da_DK\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: pcio-vis-tickets\n"
+"X-Generator: Poedit 3.10\n"
+
+msgid "%1$s — Order %2$s"
+msgstr "%1$s — Ordre %2$s"
+
+msgid "%d ticket issued"
+msgid_plural "%d tickets issued"
+msgstr[0] "%d billet udstedt"
+msgstr[1] "%d billetter udstedt"
+
+msgid "Actions"
+msgstr "Handlinger"
+
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "Active mode"
+msgstr "Aktiv tilstand"
+
+msgid "Add this URL as a webhook in your Stripe dashboard (event: checkout.session.completed) and paste the resulting signing secret above."
+msgstr "Tilføj denne URL som webhook i dit Stripe-dashboard (hændelse: checkout.session.completed), og indsæt den resulterende signeringsnøgle ovenfor."
+
+msgid "Add ticket type"
+msgstr "Tilføj billettype"
+
+msgid "Address that ticket confirmation emails are sent from. Leave blank to use the site admin email."
+msgstr "Adressen, som billetbekræftelses-e-mails sendes fra. Lad stå tom for at bruge sidens administrator-e-mail."
+
+msgid "All events"
+msgstr "Alle begivenheder"
+
+msgid "All statuses"
+msgstr "Alle statusser"
+
+msgid "Amount"
+msgstr "Beløb"
+
+msgid "Back to event"
+msgstr "Tilbage til begivenhed"
+
+msgid "Back to orders"
+msgstr "Tilbage til ordrer"
+
+msgid "Buy tickets"
+msgstr "Køb billetter"
+
+msgid "Buyer"
+msgstr "Køber"
+
+msgid "Cancel order"
+msgstr "Annuller ordre"
+
+msgid "Cancelled"
+msgstr "Annulleret"
+
+msgid "Checkout"
+msgstr "Betaling"
+
+msgid "Choose which key set is used for checkout. Both sets are stored independently, so you can switch without re-entering keys."
+msgstr "Vælg, hvilket nøglesæt der bruges til betaling. Begge sæt gemmes uafhængigt, så du kan skifte uden at indtaste nøglerne igen."
+
+msgid "Confirmation email resent."
+msgstr "Bekræftelses-e-mail sendt igen."
+
+msgid "Confirmed (free)"
+msgstr "Bekræftet (gratis)"
+
+msgid "Continue to payment"
+msgstr "Fortsæt til betaling"
+
+msgid "Could not create the order. Please try again."
+msgstr "Kunne ikke oprette ordren. Prøv igen."
+
+msgid "Could not create ticket type."
+msgstr "Kunne ikke oprette billettype."
+
+msgid "Currency"
+msgstr "Valuta"
+
+msgid "Date"
+msgstr "Dato"
+
+msgid "Decrease"
+msgstr "Formindsk"
+
+msgid "Delete"
+msgstr "Slet"
+
+msgid "Delete this ticket type?"
+msgstr "Slet denne billettype?"
+
+msgid "Download tickets (PDF)"
+msgstr "Download billetter (PDF)"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Entrance ticket (counts towards capacity)"
+msgstr "Adgangsbillet (tæller med i kapaciteten)"
+
+msgid "Entrance tickets sold:"
+msgstr "Solgte adgangsbilletter:"
+
+msgid "Event"
+msgstr "Begivenhed"
+
+msgid "Event not found."
+msgstr "Begivenhed ikke fundet."
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Find your keys in the %s."
+msgstr "Find dine nøgler i %s."
+
+msgid "Free"
+msgstr "Gratis"
+
+msgid "Full name"
+msgstr "Fuldt navn"
+
+msgid "Get tickets"
+msgstr "Hent billetter"
+
+msgid "Hi %s,"
+msgstr "Hej %s,"
+
+msgid "Hi,"
+msgstr "Hej,"
+
+msgid "Hide remaining ticket count from buyers"
+msgstr "Skjul antal resterende billetter for købere"
+
+msgid "If the attachment is missing, you can download your tickets here: %s"
+msgstr "Hvis vedhæftningen mangler, kan du downloade dine billetter her: %s"
+
+msgid "Increase"
+msgstr "Forøg"
+
+msgid "Insufficient permissions."
+msgstr "Utilstrækkelige rettigheder."
+
+msgid "Items"
+msgstr "Varer"
+
+msgid "Live"
+msgstr "Live"
+
+msgid "Live keys"
+msgstr "Live-nøgler"
+
+msgid "Loading ticket settings…"
+msgstr "Indlæser billetindstillinger…"
+
+msgid "Manage tickets & ticket sales"
+msgstr "Administrer billetter og billetsalg"
+
+msgid "Mark as sold out"
+msgstr "Markér som udsolgt"
+
+msgid "Max entrance tickets per buyer"
+msgstr "Maks. adgangsbilletter pr. køber"
+
+msgid "Maximum number of guests"
+msgstr "Maksimalt antal gæster"
+
+msgid "Member sign-up event"
+msgstr "Medlemstilmeldingsbegivenhed"
+
+msgid "Mode"
+msgstr "Tilstand"
+
+msgid "Name"
+msgstr "Navn"
+
+msgid "New ticket"
+msgstr "Ny billet"
+
+msgid "No orders found."
+msgstr "Ingen ordrer fundet."
+
+msgid "No payment reference on this order — cannot refund via Stripe."
+msgstr "Ingen betalingsreference på denne ordre — kan ikke refundere via Stripe."
+
+msgid "No ticket types yet. Add one to start selling."
+msgstr "Ingen billettyper endnu. Tilføj en for at begynde at sælge."
+
+msgid "Nothing left to refund."
+msgstr "Intet tilbage at refundere."
+
+msgid "One of the selected tickets is not available."
+msgstr "En af de valgte billetter er ikke tilgængelig."
+
+msgid "Online payment is not available right now. Please contact the organiser."
+msgstr "Onlinebetaling er ikke tilgængelig lige nu. Kontakt venligst arrangøren."
+
+msgid "Only %2$d × “%1$s” are available."
+msgstr "Kun %2$d × “%1$s” er tilgængelige."
+
+msgid "Only confirmed orders can be resent."
+msgstr "Kun bekræftede ordrer kan sendes igen."
+
+msgid "Only entrance tickets count towards this limit. Sales stop automatically when it is reached."
+msgstr "Kun adgangsbilletter tæller med i denne grænse. Salget stopper automatisk, når den er nået."
+
+msgid "Order"
+msgstr "Ordre"
+
+msgid "Order %s"
+msgstr "Ordre %s"
+
+msgid "Order no. or email"
+msgstr "Ordrenr. eller e-mail"
+
+msgid "Order not found."
+msgstr "Ordre ikke fundet."
+
+msgid "Order number: %s"
+msgstr "Ordrenummer: %s"
+
+msgid "Paid"
+msgstr "Betalt"
+
+msgid "Partly refunded"
+msgstr "Delvist refunderet"
+
+msgid "Payment not completed"
+msgstr "Betaling ikke gennemført"
+
+msgid "Payments are processed securely by Stripe."
+msgstr "Betalinger behandles sikkert af Stripe."
+
+msgid "Pending"
+msgstr "Afventer"
+
+msgid "Phone (optional)"
+msgstr "Telefon (valgfrit)"
+
+msgid "Please enter a valid email address."
+msgstr "Indtast en gyldig e-mailadresse."
+
+msgid "Please enter your name."
+msgstr "Indtast dit navn."
+
+msgid "Please provide your name and a valid email address."
+msgstr "Angiv dit navn og en gyldig e-mailadresse."
+
+msgid "Please select at least one ticket."
+msgstr "Vælg mindst én billet."
+
+msgid "Price (DKK)"
+msgstr "Pris (DKK)"
+
+msgid "Processing…"
+msgstr "Behandler…"
+
+msgid "Publishable key"
+msgstr "Publicerbar nøgle"
+
+msgid "Qty"
+msgstr "Antal"
+
+msgid "Quantity offered"
+msgstr "Antal udbudt"
+
+msgid "Refund"
+msgstr "Refunder"
+
+msgid "Refund amount"
+msgstr "Refunderingsbeløb"
+
+msgid "Refund the entered amount?"
+msgstr "Refunder det indtastede beløb?"
+
+msgid "Refund this order in full? This releases the tickets and frees capacity."
+msgstr "Refunder hele denne ordre? Dette frigiver billetterne og frigør kapacitet."
+
+msgid "Refund ticket orders"
+msgstr "Refunder billetordrer"
+
+msgid "Refunded"
+msgstr "Refunderet"
+
+msgid "Resend email"
+msgstr "Send e-mail igen"
+
+msgid "Resend the confirmation email with tickets?"
+msgstr "Send bekræftelses-e-mailen med billetter igen?"
+
+msgid "Sales start"
+msgstr "Salgsstart"
+
+msgid "Sales stop"
+msgstr "Salgsstop"
+
+msgid "Save failed"
+msgstr "Gem mislykkedes"
+
+msgid "Save ticket settings"
+msgstr "Gem billetindstillinger"
+
+msgid "Saved"
+msgstr "Gemt"
+
+msgid "Secret key"
+msgstr "Hemmelig nøgle"
+
+msgid "Set the maximum number of guests above 0 to sell tickets. Leave it at 0 for a member-only sign-up event."
+msgstr "Sæt det maksimale antal gæster over 0 for at sælge billetter. Lad det stå på 0 for en begivenhed kun med medlemstilmelding."
+
+msgid "Set to 0 for no limit."
+msgstr "Sæt til 0 for ingen grænse."
+
+msgid "Settings"
+msgstr "Indstillinger"
+
+msgid "Sold"
+msgstr "Solgt"
+
+msgid "Sold out"
+msgstr "Udsolgt"
+
+msgid "Something went wrong. Please try again."
+msgstr "Noget gik galt. Prøv igen."
+
+msgid "Sorry — there are no tickets available for this event right now."
+msgstr "Beklager — der er ingen billetter tilgængelige for denne begivenhed lige nu."
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Stripe error (HTTP %d)."
+msgstr "Stripe-fejl (HTTP %d)."
+
+msgid "Stripe is configured in %s mode. Paid tickets can be sold."
+msgstr "Stripe er konfigureret i %s-tilstand. Betalte billetter kan sælges."
+
+msgid "Stripe is not configured."
+msgstr "Stripe er ikke konfigureret."
+
+msgid "Stripe is not fully configured for %s mode. Paid tickets cannot be sold until the publishable and secret keys are set. Free tickets still work."
+msgstr "Stripe er ikke fuldt konfigureret til %s-tilstand. Betalte billetter kan ikke sælges, før den publicerbare og hemmelige nøgle er angivet. Gratis billetter fungerer stadig."
+
+msgid "Stripe keys are used to take card payments for paid tickets. Free tickets (price 0) skip Stripe entirely. Keys are stored in the database and never sent to visitors — only the publishable key is exposed to the checkout page."
+msgstr "Stripe-nøgler bruges til at modtage kortbetalinger for betalte billetter. Gratis billetter (pris 0) springer Stripe helt over. Nøgler gemmes i databasen og sendes aldrig til besøgende — kun den publicerbare nøgle vises på betalingssiden."
+
+msgid "Summary"
+msgstr "Oversigt"
+
+msgid "Test"
+msgstr "Test"
+
+msgid "Test keys"
+msgstr "Test-nøgler"
+
+msgid "Thank you for your order. Your tickets for %s are attached as a PDF."
+msgstr "Tak for din ordre. Dine billetter til %s er vedhæftet som PDF."
+
+msgid "Thank you!"
+msgstr "Tak!"
+
+msgid "There are not enough tickets left for this event."
+msgstr "Der er ikke nok billetter tilbage til denne begivenhed."
+
+msgid "This event does not sell tickets."
+msgstr "Denne begivenhed sælger ikke billetter."
+
+msgid "This is a free order. Cancelling it releases the tickets and frees capacity."
+msgstr "Dette er en gratis ordre. Annullering frigiver billetterne og frigør kapacitet."
+
+msgid "This order cannot be refunded."
+msgstr "Denne ordre kan ikke refunderes."
+
+msgid "This ticket type cannot be deleted because tickets have already been sold."
+msgstr "Denne billettype kan ikke slettes, fordi der allerede er solgt billetter."
+
+msgid "Three-letter ISO currency code (e.g. DKK, EUR, USD)."
+msgstr "Tre-bogstavs ISO-valutakode (f.eks. DKK, EUR, USD)."
+
+msgid "Ticket"
+msgstr "Billet"
+
+msgid "Ticket %d"
+msgstr "Billet %d"
+
+msgid "Ticket orders"
+msgstr "Billetordrer"
+
+msgid "Ticket sales event"
+msgstr "Billetsalgsbegivenhed"
+
+msgid "Ticket sender email"
+msgstr "Billetafsender-e-mail"
+
+msgid "Ticket sender name"
+msgstr "Billetafsendernavn"
+
+msgid "Ticket settings saved."
+msgstr "Billetindstillinger gemt."
+
+msgid "Ticket type not found."
+msgstr "Billettype ikke fundet."
+
+msgid "Ticket types"
+msgstr "Billettyper"
+
+msgid "Tickets"
+msgstr "Billetter"
+
+msgid "Tickets are on sale for this event."
+msgstr "Der er billetter til salg til denne begivenhed."
+
+msgid "Total"
+msgstr "I alt"
+
+msgid "Try again"
+msgstr "Prøv igen"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Unit"
+msgstr "Stykpris"
+
+msgid "Up to %s can be refunded. Leave at the maximum for a full refund (releases tickets and capacity)."
+msgstr "Op til %s kan refunderes. Lad stå på maksimum for fuld refundering (frigiver billetter og kapacitet)."
+
+msgid "Vis — Ticket settings"
+msgstr "Vis — Billetindstillinger"
+
+msgid "We are confirming your payment for order %s. Your tickets will be emailed to you shortly."
+msgstr "Vi bekræfter din betaling for ordre %s. Dine billetter sendes til dig via e-mail om et øjeblik."
+
+msgid "We could not find your order, but if your payment went through your tickets are on their way by email."
+msgstr "Vi kunne ikke finde din ordre, men hvis din betaling gik igennem, er dine billetter på vej via e-mail."
+
+msgid "Webhook endpoint"
+msgstr "Webhook-endpoint"
+
+msgid "Webhook signing secret"
+msgstr "Webhook-signeringsnøgle"
+
+msgid "Working…"
+msgstr "Arbejder…"
+
+msgid "You can buy at most %d entrance tickets."
+msgstr "Du kan højst købe %d adgangsbilletter."
+
+msgid "Your details"
+msgstr "Dine oplysninger"
+
+msgid "Your order %s is confirmed. Your tickets have been sent to your email address."
+msgstr "Din ordre %s er bekræftet. Dine billetter er sendt til din e-mailadresse."
+
+msgid "Your payment was cancelled or did not go through, so no tickets were issued and you have not been charged."
+msgstr "Din betaling blev annulleret eller gik ikke igennem, så der blev ikke udstedt billetter, og du er ikke blevet opkrævet."
+
+msgid "Your session expired. Please reload the page and try again."
+msgstr "Din session udløb. Genindlæs siden, og prøv igen."
+
+msgid "Your tickets for %s"
+msgstr "Dine billetter til %s"
+
+msgid "Your tickets will be emailed to this address."
+msgstr "Dine billetter sendes til denne e-mailadresse."
+
+msgid "your event"
+msgstr "din begivenhed"
+
+msgid "“%s” is sold out or not on sale."
+msgstr "“%s” er udsolgt eller ikke til salg."
+
+# ── Strings added after the .pot was generated (Finance "Ticket Orders" list, dependency notice) ──
+msgid "Member Event – Tickets requires the Member Event plugin to be installed and active. Tickets functionality is disabled until then."
+msgstr "Member Event – Tickets kræver, at Member Event-pluginnet er installeret og aktivt. Billetfunktionaliteten er deaktiveret, indtil det er tilfældet."
+
+msgid "Ticket Orders"
+msgstr "Billetordrer"
+
+msgid "Ticket sales"
+msgstr "Billetsalg"
+
+msgid "Refund order"
+msgstr "Refunder ordre"
+
+msgid "Up to the order total can be refunded. The maximum performs a full refund and releases the tickets."
+msgstr "Op til ordrens fulde beløb kan refunderes. Maksimum udfører en fuld refundering og frigiver billetterne."
+
+msgid "Order refunded."
+msgstr "Ordre refunderet."
+
+msgid "Refund failed."
+msgstr "Refundering mislykkedes."
+
+msgid "Resend confirmation"
+msgstr "Send bekræftelse igen"
+
+msgid "Resend"
+msgstr "Send igen"
+
+msgid "Could not resend the email."
+msgstr "Kunne ikke sende e-mailen igen."
+
+msgid "Stripe"
+msgstr "Stripe"
+
+msgid "View"
+msgstr "Vis"
+
+#: includes/class-pcio-vis-tickets-integration.php
+msgid "Tickets are NOT sold through the Vis ticket system for this event. Choose \"Ticket sales\" under Sign-up on the Basic tab to sell tickets here."
+msgstr "Der sælges IKKE billetter via Vis-billetsystemet til dette arrangement. Vælg \"Billetsalg\" under Tilmelding på fanen Grundlæggende for at sælge billetter her."
+
+#: (migration)
+msgid "(Doors open at %s)"
+msgstr "(Døre åbner kl. %s)"
+
+#: (migration)
+msgid "Activating…"
+msgstr "Aktiverer…"
+
+#: (migration)
+msgid "Activation ended %s."
+msgstr "Aktiveringen sluttede %s."
+
+#: (migration)
+msgid "Activation failed."
+msgstr "Aktivering mislykkedes."
+
+#: (migration)
+msgid "Activation is only possible during the event."
+msgstr "Aktivering er kun mulig under arrangementet."
+
+#: (migration)
+msgid "Activation opens %s."
+msgstr "Aktivering åbner %s."
+
+#: (migration)
+msgid "All activated"
+msgstr "Alle aktiveret"
+
+#: (migration)
+msgid "All tickets activated"
+msgstr "Alle billetter aktiveret"
+
+#: (migration)
+msgid "All tickets on this order have already been activated."
+msgstr "Alle billetter på denne ordre er allerede aktiveret."
+
+#: (migration)
+msgid "Amount (cents)"
+msgstr "Beløb (cent)"
+
+#: (migration)
+msgid "Attendee name"
+msgstr "Deltagerens navn"
+
+#: (migration)
+msgid "Choose quantities and swipe to activate your tickets."
+msgstr "Vælg antal og svirp for at aktivere dine billetter."
+
+#: (migration)
+msgid "Code"
+msgstr "Kode"
+
+#: (migration)
+msgid "Could not load sales: "
+msgstr "Kunne ikke indlæse salg: "
+
+#: (migration)
+msgid "Customer"
+msgstr "Kunde"
+
+#: (migration)
+msgid "Entrance ticket"
+msgstr "Entrébillet"
+
+#: (migration)
+msgid "Event #%d ticket settings"
+msgstr "Indstillinger for billet til begivenhed nr. %d"
+
+#: (migration)
+msgid "Expired"
+msgstr "Udløbet"
+
+#: (migration)
+msgid "Gross"
+msgstr "Brutto"
+
+#: (migration)
+msgid "Guest limit"
+msgstr "Gæstebegrænsning"
+
+#: (migration)
+msgid "Hide remaining"
+msgstr "Skjul resten"
+
+#: (migration)
+msgid "Invalid"
+msgstr "Ugyldig"
+
+#: (migration)
+msgid "Invalid ticket format."
+msgstr "Ugyldigt billetformat."
+
+#: (migration)
+msgid "Loading sales…"
+msgstr "Indlæser salg…"
+
+#: (migration)
+msgid "Missing ticket data."
+msgstr "Manglende billetdata."
+
+#: (migration)
+msgid "No orders yet for this event."
+msgstr "Ingen ordrer endnu til dette arrangement."
+
+#: (migration)
+msgid "No tickets activated."
+msgstr "Ingen billetter aktiveret."
+
+#: (migration)
+msgid "Order #%1$d ticket type #%2$d"
+msgstr "Bestillingsnummer %1$d, billettype %2$d"
+
+#: (migration)
+msgid "Order number"
+msgstr "Ordre nummer"
+
+#: (migration)
+msgid "Order number:"
+msgstr "Ordrenummer:"
+
+#: (migration)
+msgid "Order:"
+msgstr "Ordre:"
+
+#: (migration)
+msgid "Orders"
+msgstr "Ordrer"
+
+#: (migration)
+msgid "Paid at"
+msgstr "Betalt hos"
+
+#: (migration)
+msgid "Phone"
+msgstr "Telefon"
+
+#: (migration)
+msgid "Place:"
+msgstr "Sted:"
+
+#: (migration)
+msgid "Price (cents)"
+msgstr "Pris (cent)"
+
+#: (migration)
+msgid "Purchase date:"
+msgstr "Købsdato:"
+
+#: (migration)
+msgid "Purchased by:"
+msgstr "Købt af:"
+
+#: (migration)
+msgid "Quantity"
+msgstr "Antal"
+
+#: (migration)
+msgid "Quantity sold"
+msgstr "Solgt antal"
+
+#: (migration)
+msgid "Ready to activate"
+msgstr "Klar til aktivering"
+
+#: (migration)
+msgid "Refunded (cents)"
+msgstr "Refunderet (cent)"
+
+#: (migration)
+msgid "Refunded at"
+msgstr "Refunderet den"
+
+#: (migration)
+msgid "Sales"
+msgstr "Salg"
+
+#: (migration)
+msgid "Sales by ticket type"
+msgstr "Salg pr. billettype"
+
+#: (migration)
+msgid "Select at least one ticket before swiping."
+msgstr "Vælg mindst én billet inden du svirper."
+
+#: (migration)
+msgid "Send tickets again to %s?"
+msgstr "Send billetter igen til %s?"
+
+#: (migration)
+msgid "Sort order"
+msgstr "Sortering"
+
+#: (migration)
+msgid "Stripe payment intent"
+msgstr "Stripe-betalingsintention"
+
+#: (migration)
+msgid "Stripe session"
+msgstr "Stripe-session"
+
+#: (migration)
+msgid "Swipe to activate"
+msgstr "Svirp for at aktivere"
+
+#: (migration)
+msgid "Swipe to activate %d tickets"
+msgstr "Svirp for at aktivere %d billetter"
+
+#: (migration)
+msgid "The ticket is not valid — the order has not been paid."
+msgstr "Billetten er ikke gyldig — ordren er ikke betalt."
+
+#: (migration)
+msgid "The tickets have been sent."
+msgstr "Billetterne er sendt."
+
+#: (migration)
+msgid "This ticket has been refunded and is no longer valid."
+msgstr "Denne billet er refunderet og ikke længere gyldig."
+
+#: (migration)
+msgid "Ticket activation has expired."
+msgstr "Billetaktivering er udløbet."
+
+#: (migration)
+msgid "Ticket active for"
+msgstr "Billet aktiv i"
+
+#: (migration)
+msgid "Ticket customer"
+msgstr "Kunde med billet"
+
+#: (migration)
+msgid "Ticket does not match the event."
+msgstr "Billetten matcher ikke arrangementet."
+
+#: (migration)
+msgid "Ticket not found."
+msgstr "Billet ikke fundet."
+
+#: (migration)
+msgid "Ticket order"
+msgstr "Bestilling af billetter"
+
+#: (migration)
+msgid "Ticket order item"
+msgstr "Billetbestillingspost"
+
+#: (migration)
+msgid "Ticket sales are only shown for events using \"Ticket sales\" under Sign-up on the Basic tab."
+msgstr "Billetsalg vises kun for arrangementer, der bruger \"Billetsalg\" under Tilmelding på fanen Basis."
+
+#: (migration)
+msgid "Ticket settings"
+msgstr "Indstillinger for billetter"
+
+#: (migration)
+msgid "Ticket type"
+msgstr "Billettype"
+
+#: (migration)
+msgid "Time:"
+msgstr "Tid:"
+
+#: (migration)
+msgid "Too early"
+msgstr "For tidligt"
+
+#: (migration)
+msgid "Unit price (cents)"
+msgstr "Enhedspris (cent)"
+
+#: (migration)
+msgid "Use ticket"
+msgstr "Benyt billet"
+
+#: (migration)
+msgid "already activated"
+msgstr "allerede aktiveret"
+
+#: (migration)
+msgid "at"
+msgstr "á"
+
+#: (migration)
+msgid "available"
+msgstr "ledige"
+
+#: (migration)
+msgid "pc."
+msgstr "stk."

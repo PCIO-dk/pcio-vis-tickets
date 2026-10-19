@@ -1,676 +1,656 @@
-# Copyright (C) 2026 PCIO
-# This file is distributed under the GPL2 license.
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PCIO VIS Tickets 1.0.0\n"
 "Report-Msgid-Bugs-To: https://www.pcio.dk/\n"
-"POT-Creation-Date: 2026-06-16 18:45+0000\n"
+"POT-Creation-Date: 2026-10-18 22:09+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: PCIO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language-Team: PCIO\n"
 "X-Domain: pcio-vis-tickets\n"
+"X-Generator: Poedit 3.10\n"
 
-#: includes/class-pcio-vis-tickets-pdf.php:157
 msgid "%1$s — Order %2$s"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:275
 msgid "%d ticket issued"
-msgid_plural "%d tickets issued"
-msgstr[0] ""
-msgstr[1] ""
+msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:284
-#: includes/class-pcio-vis-tickets-orders.php:313
 msgid "Actions"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:148
 msgid "Active"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:114
 msgid "Active mode"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:216
-msgid "Add this URL as a webhook in your Stripe dashboard (event: checkout.session.completed) and paste the resulting signing secret above."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-integration.php:139
 msgid "Add ticket type"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:172
-msgid "Address that ticket confirmation emails are sent from. Leave blank to use the site admin email."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-orders.php:117
 msgid "All events"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:126
 msgid "All statuses"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:145
 msgid "Amount"
 msgstr ""
 
-#: templates/checkout.php:22
-#: templates/result.php:65
-#: templates/result.php:80
 msgid "Back to event"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:228
 msgid "Back to orders"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:228
-#: templates/checkout.php:26
 msgid "Buy tickets"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:144
-#: includes/class-pcio-vis-tickets-orders.php:243
 msgid "Buyer"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:306
 msgid "Cancel order"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:352
 msgid "Cancelled"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:149
 msgid "Checkout"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:125
-msgid "Choose which key set is used for checkout. Both sets are stored independently, so you can switch without re-entering keys."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-orders.php:63
 msgid "Confirmation email resent."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:349
 msgid "Confirmed (free)"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:131
-#: templates/checkout.php:90
 msgid "Continue to payment"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:343
 msgid "Could not create the order. Please try again."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:152
 msgid "Could not create ticket type."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:153
 msgid "Currency"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:142
-#: includes/class-pcio-vis-tickets-orders.php:241
 msgid "Date"
 msgstr ""
 
-#: templates/checkout.php:56
 msgid "Decrease"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:140
 msgid "Delete"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:154
 msgid "Delete this ticket type?"
 msgstr ""
 
-#: templates/result.php:60
 msgid "Download tickets (PDF)"
 msgstr ""
 
-#: templates/checkout.php:77
 msgid "Email"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:142
 msgid "Entrance ticket (counts towards capacity)"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:151
 msgid "Entrance tickets sold:"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:143
-#: includes/class-pcio-vis-tickets-orders.php:239
-#: includes/class-pcio-vis-tickets-pdf.php:110
 msgid "Event"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:253
 msgid "Event not found."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:135
 msgid "Filter"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:103
 msgid "Find your keys in the %s."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:124
-#: templates/checkout.php:48
 msgid "Free"
 msgstr ""
 
-#: templates/checkout.php:73
 msgid "Full name"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:132
 msgid "Get tickets"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-fulfillment.php:71
 msgid "Hi %s,"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-fulfillment.php:72
 msgid "Hi,"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:137
 msgid "Hide remaining ticket count from buyers"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-fulfillment.php:88
 msgid "If the attachment is missing, you can download your tickets here: %s"
 msgstr ""
 
-#: templates/checkout.php:58
 msgid "Increase"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:72
-#: includes/class-pcio-vis-tickets-orders.php:75
 msgid "Insufficient permissions."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:255
 msgid "Items"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:123
 msgid "Live"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:140
 msgid "Live keys"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:77
 msgid "Loading ticket settings…"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:50
 msgid "Manage tickets & ticket sales"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:136
 msgid "Mark as sold out"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:134
 msgid "Max entrance tickets per buyer"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:132
 msgid "Maximum number of guests"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:129
 msgid "Member sign-up event"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:111
 msgid "Mode"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:141
 msgid "Name"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:150
 msgid "New ticket"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:151
 msgid "No orders found."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:612
 msgid "No payment reference on this order — cannot refund via Stripe."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:149
 msgid "No ticket types yet. Add one to start selling."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:607
 msgid "Nothing left to refund."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:283
 msgid "One of the selected tickets is not available."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:391
-msgid "Online payment is not available right now. Please contact the organiser."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-rest.php:294
 msgid "Only %2$d × “%1$s” are available."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:663
 msgid "Only confirmed orders can be resent."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:133
-msgid "Only entrance tickets count towards this limit. Sales stop automatically when it is reached."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-orders.php:141
 msgid "Order"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:223
 msgid "Order %s"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:134
 msgid "Order no. or email"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:196
-#: includes/class-pcio-vis-tickets-rest.php:577
-#: includes/class-pcio-vis-tickets-rest.php:660
 msgid "Order not found."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-fulfillment.php:83
 msgid "Order number: %s"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:348
 msgid "Paid"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:351
 msgid "Partly refunded"
 msgstr ""
 
-#: templates/result.php:71
 msgid "Payment not completed"
 msgstr ""
 
-#: templates/checkout.php:93
 msgid "Payments are processed securely by Stripe."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:347
 msgid "Pending"
 msgstr ""
 
-#: templates/checkout.php:82
 msgid "Phone (optional)"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:128
 msgid "Please enter a valid email address."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:127
 msgid "Please enter your name."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:263
 msgid "Please provide your name and a valid email address."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:126
-#: includes/class-pcio-vis-tickets-rest.php:310
 msgid "Please select at least one ticket."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:143
 msgid "Price (DKK)"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:130
 msgid "Processing…"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:134
-#: includes/class-pcio-vis-tickets-admin.php:143
 msgid "Publishable key"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:259
 msgid "Qty"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:144
 msgid "Quantity offered"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:303
 msgid "Refund"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:288
 msgid "Refund amount"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:59
 msgid "Refund the entered amount?"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:58
-msgid "Refund this order in full? This releases the tickets and frees capacity."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-integration.php:51
 msgid "Refund ticket orders"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:248
-#: includes/class-pcio-vis-tickets-orders.php:350
 msgid "Refunded"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:309
-#: includes/class-pcio-vis-tickets-orders.php:314
 msgid "Resend email"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:60
 msgid "Resend the confirmation email with tickets?"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:146
 msgid "Sales start"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:147
 msgid "Sales stop"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:153
 msgid "Save failed"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:188
 msgid "Save ticket settings"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:152
 msgid "Saved"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:135
-#: includes/class-pcio-vis-tickets-admin.php:144
 msgid "Secret key"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:131
-msgid "Set the maximum number of guests above 0 to sell tickets. Leave it at 0 for a member-only sign-up event."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-integration.php:135
 msgid "Set to 0 for no limit."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:50
 msgid "Settings"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:145
 msgid "Sold"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:223
 msgid "Sold out"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:133
-#: includes/class-pcio-vis-tickets-orders.php:62
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: templates/checkout.php:30
 msgid "Sorry — there are no tickets available for this event right now."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:193
-#: includes/class-pcio-vis-tickets-orders.php:146
-#: includes/class-pcio-vis-tickets-orders.php:237
 msgid "Status"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-stripe.php:148
 msgid "Stripe error (HTTP %d)."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:199
 msgid "Stripe is configured in %s mode. Paid tickets can be sold."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-stripe.php:35
-#: includes/class-pcio-vis-tickets-stripe.php:105
-#: includes/class-pcio-vis-tickets-stripe.php:124
 msgid "Stripe is not configured."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:208
-msgid "Stripe is not fully configured for %s mode. Paid tickets cannot be sold until the publishable and secret keys are set. Free tickets still work."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-admin.php:100
-msgid "Stripe keys are used to take card payments for paid tickets. Free tickets (price 0) skip Stripe entirely. Keys are stored in the database and never sent to visitors — only the publishable key is exposed to the checkout page."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-orders.php:235
 msgid "Summary"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:119
 msgid "Test"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:131
 msgid "Test keys"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-fulfillment.php:78
 msgid "Thank you for your order. Your tickets for %s are attached as a PDF."
 msgstr ""
 
-#: templates/result.php:28
 msgid "Thank you!"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:323
-#: includes/class-pcio-vis-tickets-rest.php:370
 msgid "There are not enough tickets left for this event."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:256
 msgid "This event does not sell tickets."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:305
-msgid "This is a free order. Cancelling it releases the tickets and frees capacity."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-rest.php:582
 msgid "This order cannot be refunded."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:155
-#: includes/class-pcio-vis-tickets-rest.php:193
-msgid "This ticket type cannot be deleted because tickets have already been sold."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-admin.php:160
 msgid "Three-letter ISO currency code (e.g. DKK, EUR, USD)."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-pdf.php:165
-#: includes/class-pcio-vis-tickets-stripe.php:47
 msgid "Ticket"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-pdf.php:186
 msgid "Ticket %d"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:26
-#: includes/class-pcio-vis-tickets-orders.php:27
-#: includes/class-pcio-vis-tickets-orders.php:110
 msgid "Ticket orders"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:130
+msgid "Ticket sales"
+msgstr ""
+
 msgid "Ticket sales event"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:165
 msgid "Ticket sender email"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:177
 msgid "Ticket sender name"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:95
 msgid "Ticket settings saved."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:170
-#: includes/class-pcio-vis-tickets-rest.php:189
 msgid "Ticket type not found."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:138
 msgid "Ticket types"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:60
-#: includes/class-pcio-vis-tickets-admin.php:61
-#: includes/class-pcio-vis-tickets-integration.php:75
-#: includes/class-pcio-vis-tickets-integration.php:221
-#: templates/checkout.php:36
 msgid "Tickets"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-integration.php:226
 msgid "Tickets are on sale for this event."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:125
-#: includes/class-pcio-vis-tickets-orders.php:245
-#: templates/checkout.php:65
 msgid "Total"
 msgstr ""
 
-#: templates/result.php:77
 msgid "Try again"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:258
 msgid "Type"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:260
 msgid "Unit"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:298
-msgid "Up to %s can be refunded. Leave at the maximum for a full refund (releases tickets and capacity)."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-admin.php:91
 msgid "Vis — Ticket settings"
 msgstr ""
 
-#: templates/result.php:47
-msgid "We are confirming your payment for order %s. Your tickets will be emailed to you shortly."
-msgstr ""
-
-#: templates/result.php:31
-msgid "We could not find your order, but if your payment went through your tickets are on their way by email."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-admin.php:214
 msgid "Webhook endpoint"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-admin.php:136
-#: includes/class-pcio-vis-tickets-admin.php:145
 msgid "Webhook signing secret"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-orders.php:61
 msgid "Working…"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-frontend.php:129
-#: includes/class-pcio-vis-tickets-rest.php:316
 msgid "You can buy at most %d entrance tickets."
 msgstr ""
 
-#: templates/checkout.php:71
 msgid "Your details"
 msgstr ""
 
-#: templates/result.php:37
-msgid "Your order %s is confirmed. Your tickets have been sent to your email address."
-msgstr ""
-
-#: templates/result.php:73
-msgid "Your payment was cancelled or did not go through, so no tickets were issued and you have not been charged."
-msgstr ""
-
-#: includes/class-pcio-vis-tickets-rest.php:247
 msgid "Your session expired. Please reload the page and try again."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-fulfillment.php:54
 msgid "Your tickets for %s"
 msgstr ""
 
-#: templates/checkout.php:79
 msgid "Your tickets will be emailed to this address."
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-fulfillment.php:49
 msgid "your event"
 msgstr ""
 
-#: includes/class-pcio-vis-tickets-rest.php:288
 msgid "“%s” is sold out or not on sale."
 msgstr ""
 
+msgid "(Doors open at %s)"
+msgstr ""
+
+msgid "Activating…"
+msgstr ""
+
+msgid "Activation ended %s."
+msgstr ""
+
+msgid "Activation failed."
+msgstr ""
+
+msgid "Activation is only possible during the event."
+msgstr ""
+
+msgid "Activation opens %s."
+msgstr ""
+
+msgid "All activated"
+msgstr ""
+
+msgid "All tickets activated"
+msgstr ""
+
+msgid "All tickets on this order have already been activated."
+msgstr ""
+
+msgid "Amount (cents)"
+msgstr ""
+
+msgid "Attendee name"
+msgstr ""
+
+msgid "Choose quantities and swipe to activate your tickets."
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Could not load sales: "
+msgstr ""
+
+msgid "Customer"
+msgstr ""
+
+msgid "Entrance ticket"
+msgstr ""
+
+msgid "Event #%d ticket settings"
+msgstr ""
+
+msgid "Expired"
+msgstr ""
+
+msgid "Gross"
+msgstr ""
+
+msgid "Guest limit"
+msgstr ""
+
+msgid "Hide remaining"
+msgstr ""
+
+msgid "Invalid"
+msgstr ""
+
+msgid "Invalid ticket format."
+msgstr ""
+
+msgid "Loading sales…"
+msgstr ""
+
+msgid "Missing ticket data."
+msgstr ""
+
+msgid "No orders yet for this event."
+msgstr ""
+
+msgid "No tickets activated."
+msgstr ""
+
+msgid "Order #%1$d ticket type #%2$d"
+msgstr ""
+
+msgid "Order number"
+msgstr ""
+
+msgid "Order number:"
+msgstr ""
+
+msgid "Order:"
+msgstr ""
+
+msgid "Orders"
+msgstr ""
+
+msgid "Paid at"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Place:"
+msgstr ""
+
+msgid "Price (cents)"
+msgstr ""
+
+msgid "Purchase date:"
+msgstr ""
+
+msgid "Purchased by:"
+msgstr ""
+
+msgid "Quantity"
+msgstr ""
+
+msgid "Quantity sold"
+msgstr ""
+
+msgid "Ready to activate"
+msgstr ""
+
+msgid "Refunded (cents)"
+msgstr ""
+
+msgid "Refunded at"
+msgstr ""
+
+msgid "Sales"
+msgstr ""
+
+msgid "Sales by ticket type"
+msgstr ""
+
+msgid "Select at least one ticket before swiping."
+msgstr ""
+
+msgid "Send tickets again to %s?"
+msgstr ""
+
+msgid "Sort order"
+msgstr ""
+
+msgid "Stripe payment intent"
+msgstr ""
+
+msgid "Stripe session"
+msgstr ""
+
+msgid "Swipe to activate"
+msgstr ""
+
+msgid "Swipe to activate %d tickets"
+msgstr ""
+
+msgid "The ticket is not valid — the order has not been paid."
+msgstr ""
+
+msgid "The tickets have been sent."
+msgstr ""
+
+msgid "This ticket has been refunded and is no longer valid."
+msgstr ""
+
+msgid "Ticket activation has expired."
+msgstr ""
+
+msgid "Ticket active for"
+msgstr ""
+
+msgid "Ticket customer"
+msgstr ""
+
+msgid "Ticket does not match the event."
+msgstr ""
+
+msgid "Ticket not found."
+msgstr ""
+
+msgid "Ticket order"
+msgstr ""
+
+msgid "Ticket order item"
+msgstr ""
+
+msgid "Ticket sales are only shown for events using \"Ticket sales\" under Sign-up on the Basic tab."
+msgstr ""
+
+msgid "Ticket settings"
+msgstr ""
+
+msgid "Ticket type"
+msgstr ""
+
+msgid "Time:"
+msgstr ""
+
+msgid "Too early"
+msgstr ""
+
+msgid "Unit price (cents)"
+msgstr ""
+
+msgid "Use ticket"
+msgstr ""
+
+msgid "already activated"
+msgstr ""
+
+msgid "at"
+msgstr ""
+
+msgid "available"
+msgstr ""
+
+msgid "pc."
+msgstr ""
