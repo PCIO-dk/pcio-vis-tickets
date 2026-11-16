@@ -210,9 +210,75 @@
 	function render( container ) {
 		root = container;
 		container.innerHTML = '';
+		if ( CFG.signupMode === 'external' ) {
+			container.appendChild( renderExternalSale() );
+			return;
+		}
 		container.appendChild( renderSettings() );
 		container.appendChild( renderTypes() );
 		refreshModeBanner();
+	}
+
+	/**
+	 * External ticket sale: only the outbound link is managed here. The URL is
+	 * stored on the event itself (core REST) so the rest of Vis keeps using it.
+	 */
+	function renderExternalSale() {
+		var wrap = el( 'section', { class: 'pcio-met-card' } );
+		wrap.appendChild( el( 'h3', { text: I.externalHeading || 'External ticket sale' } ) );
+
+		var input = el( 'input', {
+			type: 'url',
+			class: 'pcio-met-input',
+			value: CFG.externalUrl || '',
+			placeholder: 'https://',
+			maxlength: '500'
+		} );
+		var pill = statusPill();
+		var actions = el( 'div', { style: 'display:flex;align-items:center;gap:10px;margin-top:12px' } );
+		var save = el( 'button', { type: 'button', class: 'pcio-met-btn pcio-met-btn-primary', text: I.externalSave || 'Save link' } );
+
+		function saveLink() {
+			pill.className = 'pcio-met-status';
+			pill.textContent = '';
+			fetch( CFG.eventRest + '/' + CFG.eventId, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': CFG.nonce
+				},
+				credentials: 'same-origin',
+				body: JSON.stringify( { external_url: input.value.trim() } )
+			} ).then( function ( res ) {
+				return res.json().then( function ( data ) {
+					if ( ! res.ok ) {
+						throw new Error( data && data.message ? data.message : ( 'HTTP ' + res.status ) );
+					}
+					return data;
+				} );
+			} ).then( function ( data ) {
+				CFG.externalUrl = data && data.external_url ? data.external_url : input.value.trim();
+				flashSaved( pill );
+			} ).catch( function ( err ) {
+				flashError( pill, ( I.externalSaveError || 'Could not save the link: ' ) + err.message );
+			} );
+		}
+
+		save.addEventListener( 'click', saveLink );
+		input.addEventListener( 'change', saveLink );
+		actions.appendChild( save );
+		actions.appendChild( pill );
+
+		wrap.appendChild( field( I.externalUrlLabel || 'Ticket sale URL', input, I.externalHelp || 'Tickets for this event are sold on another site. Enter the link buyers should use.' ) );
+		wrap.appendChild( actions );
+
+		var link = String( CFG.externalUrl || '' ).trim();
+		if ( link ) {
+			wrap.appendChild( el( 'p', { class: 'pcio-met-field__help' }, [
+				el( 'a', { href: link, target: '_blank', rel: 'noopener noreferrer', text: I.externalOpen || 'Open link' } )
+			] ) );
+		}
+		return wrap;
 	}
 
 	function renderSettings() {
@@ -313,6 +379,7 @@
 			addBtn.disabled = true;
 			api( 'POST', '/events/' + CFG.eventId + '/types', {
 				name: I.newTypeName || 'New ticket',
+				access: CFG.defaultAccess || 'members',
 				is_entrance: 1,
 				price_cents: 0,
 				qty_offered: 0,
@@ -372,6 +439,19 @@
 			saveType( t.id, { name: nameInput.value }, pill );
 		} );
 		grid.appendChild( field( I.name || 'Name', nameInput ) );
+
+		// Who can purchase
+		var accessSelect = el( 'select', { class: 'pcio-met-input' } );
+		accessSelect.appendChild( el( 'option', { value: '', text: I.accessDefault || 'Event type default' } ) );
+		var accessLabels = CFG.accessLabels || {};
+		Object.keys( accessLabels ).forEach( function ( value ) {
+			accessSelect.appendChild( el( 'option', { value: value, text: accessLabels[ value ] } ) );
+		} );
+		accessSelect.value = t.access || '';
+		accessSelect.addEventListener( 'change', function () {
+			saveType( t.id, { access: accessSelect.value }, pill );
+		} );
+		grid.appendChild( field( I.access || 'Who can purchase', accessSelect, I.accessHelp || '' ) );
 
 		// Price
 		var priceInput = el( 'input', {

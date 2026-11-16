@@ -18,12 +18,15 @@ class PCIO_VIS_Tickets_PDF {
 
     const SUBDIR = 'pcio-met-tickets';
 
+    /** Bump when the QR payload format changes so cached PDFs regenerate. */
+    const CACHE_VERSION = '3';
+
     /**
      * Absolute path to the PDF for an order token (the file may not exist yet).
      */
     public static function file_for( string $token ): string {
         $dir = self::storage_dir();
-        return trailingslashit( $dir['path'] ) . 'order-' . sanitize_file_name( $token ) . '.pdf';
+        return trailingslashit( $dir['path'] ) . 'order-' . sanitize_file_name( $token ) . '-v' . self::CACHE_VERSION . '.pdf';
     }
 
     /**
@@ -195,7 +198,11 @@ class PCIO_VIS_Tickets_PDF {
                 $type_name = $type ? (string) $type['name'] : __( 'Ticket', 'pcio-vis-tickets' );
                 $is_entre  = $type && ! empty( $type['is_entrance'] );
                 $price     = self::format_price( $unit_price[ (int) $ticket['ticket_type_id'] ] ?? 0, $currency );
-                $qr        = self::qr_data_uri( self::checkin_url( (string) $ticket['code'] ) );
+                $ticket_code = (string) $ticket['code'];
+                $qr          = self::qr_data_uri( self::checkin_url( $ticket_code ) );
+                if ( '' === $qr ) {
+                    $qr = self::qr_data_uri( $ticket_code );
+                }
                 ?>
                 <table class="ticket">
                     <tr>
@@ -286,22 +293,22 @@ class PCIO_VIS_Tickets_PDF {
     /**
      * Build the check-in URL a scanner would open for a ticket.
      *
-     * Legacy-style payload: base64("ticket_id, event_id, order_no, customer_id").
+     * The payload is a versioned, HMAC-signed ticket/event pair.
      */
     public static function checkin_url( string $code ): string {
         return add_query_arg( 'data', rawurlencode( self::activation_payload( $code ) ), home_url( 'tickets/checkin/' ) );
     }
 
     /**
-     * Encode the activation payload for a ticket code. Returns '' when the
-     * ticket cannot be resolved (callers then fall back to the raw code).
+     * Encode a signed activation payload for a ticket code. Returns the raw
+     * code when the ticket cannot be resolved (legacy fallback).
      */
     public static function activation_payload( string $code ): string {
         global $wpdb;
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Exact-match lookup by ticket code; is_cached false for correctness.
         $row = $wpdb->get_row(
             $wpdb->prepare(
-                'SELECT t.id, t.order_id, o.event_id, o.order_no, o.customer_id FROM %i t JOIN %i o ON o.id = t.order_id WHERE t.code = %s LIMIT 1',
+                'SELECT t.id, o.event_id FROM %i t JOIN %i o ON o.id = t.order_id WHERE t.code = %s LIMIT 1',
                 PCIO_VIS_Tickets_DB::t_tickets(), PCIO_VIS_Tickets_DB::t_orders(), $code
             ),
             ARRAY_A
@@ -309,11 +316,16 @@ class PCIO_VIS_Tickets_PDF {
         if ( ! $row ) {
             return $code;
         }
-        return base64_encode( implode( ', ', [ (int) $row['id'], (int) $row['event_id'], (string) $row['order_no'], (int) $row['customer_id'] ] ) );
+        $payload   = 'v1|' . (int) $row['id'] . '|' . (int) $row['event_id'];
+        $signature = hash_hmac( 'sha256', $payload, (string) wp_salt( 'auth' ) );
+        return base64_encode( $payload . '|' . $signature );
     }
 
     /**
-     * Decode an activation payload. Returns [ticket_id, event_id] or null.
+     * Decode a signed activation payload. Returns [ticket_id, event_id] or null.
+     *
+     * Unsigned legacy base64 payloads are deliberately rejected: ticket IDs
+     * are enumerable, so accepting them would allow forged activation links.
      *
      * @return array{int,int}|null
      */
@@ -322,18 +334,34 @@ class PCIO_VIS_Tickets_PDF {
         if ( false === $decoded ) {
             return null;
         }
-        $parts = array_map( 'trim', explode( ',', $decoded ) );
-        if ( count( $parts ) < 2 || ! ctype_digit( $parts[0] ) || ! ctype_digit( $parts[1] ) ) {
+        $parts = explode( '|', $decoded );
+        if ( 4 !== count( $parts ) || 'v1' !== $parts[0] ) {
             return null;
         }
-        return [ (int) $parts[0], (int) $parts[1] ];
+        [ $version, $ticket_id, $event_id, $signature ] = $parts;
+        if ( ! ctype_digit( $ticket_id ) || ! ctype_digit( $event_id ) ) {
+            return null;
+        }
+        $payload  = $version . '|' . $ticket_id . '|' . $event_id;
+        $expected = hash_hmac( 'sha256', $payload, (string) wp_salt( 'auth' ) );
+        if ( ! hash_equals( $expected, $signature ) ) {
+            return null;
+        }
+        return [ (int) $ticket_id, (int) $event_id ];
     }
 
     /**
      * Render a QR code as a PNG data URI (embeddable in the PDF HTML).
      */
     private static function qr_data_uri( string $text ): string {
-        return class_exists( 'PCIO_VIS_PDF' ) ? PCIO_VIS_PDF::qr_data_uri( $text ) : '';
+        if ( ! class_exists( 'PCIO_VIS_PDF' ) ) {
+            return '';
+        }
+        try {
+            return PCIO_VIS_PDF::qr_data_uri( $text, \chillerlan\QRCode\Common\Version::AUTO );
+        } catch ( \Throwable $e ) {
+            return '';
+        }
     }
 
     // ── Storage ───────────────────────────────────────────────────

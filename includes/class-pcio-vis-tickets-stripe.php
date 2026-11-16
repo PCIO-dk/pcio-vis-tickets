@@ -94,6 +94,74 @@ class PCIO_VIS_Tickets_Stripe {
         return self::post( '/refunds', $body );
     }
 
+    /**
+     * Pay out an available Stripe balance to the connected bank account
+     * (port of the legacy Fjordglimt event-report payout).
+     *
+     * @param int    $amount_cents Amount in minor units (must be > 0).
+     * @param string $currency     ISO-4217 (e.g. DKK).
+     * @param array  $metadata     Additional metadata (internal reference).
+     * @return array|WP_Error Payout object ['id','amount','status','arrival_date','balance_transaction',…].
+     */
+    public static function create_payout( int $amount_cents, string $currency, array $metadata = [] ) {
+        if ( $amount_cents <= 0 ) {
+            return new WP_Error( 'pcio_met_payout_amount', __( 'Payout amount must be positive.', 'pcio-vis-tickets' ) );
+        }
+        $body = [
+            'amount'   => $amount_cents,
+            'currency' => strtolower( $currency ),
+        ];
+        foreach ( $metadata as $key => $value ) {
+            $body[ 'metadata[' . $key . ']' ] = (string) $value;
+        }
+        return self::post( '/payouts', $body );
+    }
+
+    /**
+     * Retrieve a payout (used to refresh pending/in_transit status).
+     *
+     * @return array|WP_Error
+     */
+    public static function get_payout( string $payout_id, ?string $mode = null ) {
+        return self::get( '/payouts/' . rawurlencode( $payout_id ), $mode );
+    }
+
+    /**
+     * Current balance of the account. The response contains 'available' and
+     * 'pending' arrays of [ 'amount' => minor units, 'currency' => ISO ].
+     *
+     * @return array|WP_Error
+     */
+    public static function get_balance() {
+        return self::get( '/balance' );
+    }
+
+    /**
+     * Fee transactions for a payment intent (exact Stripe processing cost).
+     *
+     * @return array|WP_Error { 'data' => [ [ 'fee' => int ], … ] }
+     */
+    public static function balance_transactions( string $payment_intent, ?string $mode = null ) {
+        return self::get( '/balance_transactions?payment_intent=' . rawurlencode( $payment_intent ) . '&limit=100', $mode );
+    }
+
+    /**
+     * Available balance for one currency (minor units) or null when unknown.
+     */
+    public static function available_balance_for( string $currency ): ?int {
+        $balance = self::get_balance();
+        if ( is_wp_error( $balance ) || ! isset( $balance['available'] ) || ! is_array( $balance['available'] ) ) {
+            return null;
+        }
+        $currency = strtolower( $currency );
+        foreach ( $balance['available'] as $entry ) {
+            if ( isset( $entry['currency'] ) && strtolower( (string) $entry['currency'] ) === $currency ) {
+                return (int) $entry['amount'];
+            }
+        }
+        return null;
+    }
+
     // ── Transport ─────────────────────────────────────────────────
 
     /**
@@ -118,8 +186,10 @@ class PCIO_VIS_Tickets_Stripe {
     /**
      * @return array|WP_Error
      */
-    private static function get( string $path ) {
-        $secret = PCIO_VIS_Tickets_Admin::stripe_secret_key();
+    private static function get( string $path, ?string $mode = null ) {
+        $secret = null !== $mode
+            ? PCIO_VIS_Tickets_Admin::stripe_secret_key_for( $mode )
+            : PCIO_VIS_Tickets_Admin::stripe_secret_key();
         if ( '' === $secret ) {
             return new WP_Error( 'pcio_met_no_key', __( 'Stripe is not configured.', 'pcio-vis-tickets' ) );
         }

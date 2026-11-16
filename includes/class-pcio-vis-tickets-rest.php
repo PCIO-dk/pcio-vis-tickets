@@ -107,8 +107,7 @@ class PCIO_VIS_Tickets_Rest {
         register_rest_route( $ns, '/tickets/orders/(?P<id>\d+)/resend', [
             [
                 'methods'             => WP_REST_Server::CREATABLE,
-                'callback'            => [ $this, 'resend_order' ],
-                'permission_callback' => [ $this, 'can_manage' ],
+                'permission_callback' => [ $this, 'can_resend' ],
                 'args'                => [ 'id' => self::id_arg() ],
             ],
         ] );
@@ -119,6 +118,56 @@ class PCIO_VIS_Tickets_Rest {
                 'methods'             => WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'list_orders_finance' ],
                 'permission_callback' => [ $this, 'can_view_finance' ],
+            ],
+        ] );
+
+        // Finance: event report overview (payout status per finished event).
+        register_rest_route( $ns, '/tickets/reports', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [ $this, 'list_reports_finance' ],
+                'permission_callback' => [ $this, 'can_view_finance' ],
+            ],
+        ] );
+
+        // Finance: report PDF (format=view|download). Uses the finance cap; the
+        // browser hits it with a wp_rest nonce query param.
+        register_rest_route( $ns, '/tickets/reports/(?P<id>\d+)/pdf', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [ $this, 'report_pdf' ],
+                'permission_callback' => [ $this, 'can_view_finance' ],
+                'args'                => [ 'id' => self::id_arg() ],
+            ],
+        ] );
+
+        // Finance: pay out a report (full remaining or a manual partial amount).
+        register_rest_route( $ns, '/tickets/reports/(?P<id>\d+)/payout', [
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [ $this, 'payout_report' ],
+                'permission_callback' => [ $this, 'can_refund' ],
+                'args'                => [ 'id' => self::id_arg() ],
+            ],
+        ] );
+
+        // Finance: (re)send the report email to the configured receivers.
+        register_rest_route( $ns, '/tickets/reports/(?P<id>\d+)/mail', [
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [ $this, 'mail_report' ],
+                'permission_callback' => [ $this, 'can_view_finance' ],
+                'args'                => [ 'id' => self::id_arg() ],
+            ],
+        ] );
+
+        // Finance: remove a report (only possible while no payouts exist).
+        register_rest_route( $ns, '/tickets/reports/(?P<id>\d+)', [
+            [
+                'methods'             => WP_REST_Server::DELETABLE,
+                'callback'            => [ $this, 'delete_report' ],
+                'permission_callback' => [ $this, 'can_refund' ],
+                'args'                => [ 'id' => self::id_arg() ],
             ],
         ] );
     }
@@ -132,18 +181,32 @@ class PCIO_VIS_Tickets_Rest {
 
     // ── Permissions ───────────────────────────────────────────────
 
-    public function can_manage(): bool {
-        return current_user_can( 'vis_tickets_manage' );
+    /** Event editors (the event's creator or an event manager) define and sell its tickets. */
+    public function can_manage( WP_REST_Request $req ): bool {
+        $event = PCIO_VIS_Events_DB::get( (int) $req->get_param( 'eid' ) );
+        return null !== $event && PCIO_VIS_Events_DB::can_edit_event( $event );
     }
 
+    /** Refunds are finance-only. */
     public function can_refund(): bool {
-        return current_user_can( 'vis_tickets_refund' );
+        return current_user_can( 'vis_manage_finance' );
     }
 
-    /** Finance managers (or ticket managers) may view the orders list. */
-    public function can_view_finance(): bool {
-        return current_user_can( 'vis_manage_finance' ) || current_user_can( 'vis_tickets_manage' );
+    /** Resend a confirmation: finance, or an editor of the order's event. */
+    public function can_resend( WP_REST_Request $req ): bool {
+        if ( current_user_can( 'vis_manage_finance' ) ) {
+            return true;
+        }
+        $order = PCIO_VIS_Tickets_DB::get_order( (int) $req->get_param( 'id' ) );
+        $event = $order ? PCIO_VIS_Events_DB::get( (int) $order['event_id'] ) : null;
+        return null !== $event && PCIO_VIS_Events_DB::can_edit_event( $event );
     }
+
+    /** Finance managers see the orders list; event editors see sales per event instead. */
+    public function can_view_finance(): bool {
+        return current_user_can( 'vis_manage_finance' );
+    }
+
 
     /**
      * List orders shaped for the Finance "Orders" table (newest first).
@@ -169,7 +232,7 @@ class PCIO_VIS_Tickets_Rest {
                 $status     = (string) $order['status'];
                 $total      = (int) $order['amount_cents'];
                 $refunded   = (int) $order['refunded_cents'];
-                $refundable = max( 0, $total - $refunded );
+                $refundable = PCIO_VIS_Tickets_Fees::refundable_cents( $total, (int) ( $order['fee_cents'] ?? 0 ), $refunded );
                 $can_refund = in_array( $status, [ 'paid', 'partly_refunded', 'free_confirmed' ], true )
                     && ( $refundable > 0 || $total <= 0 );
                 $can_resend = in_array( $status, [ 'paid', 'free_confirmed', 'partly_refunded' ], true );
@@ -432,20 +495,34 @@ class PCIO_VIS_Tickets_Rest {
         if ( ! PCIO_VIS_Events_DB::is_published( $event ) ) {
             return new WP_REST_Response( [ 'message' => __( 'Event not found.', 'pcio-vis-tickets' ) ], 404 );
         }
+        if ( ! PCIO_VIS_Events_DB::can_view_event( $event ) ) {
+            return new WP_REST_Response( [ 'message' => __( 'This event is not available to your account.', 'pcio-vis-tickets' ) ], 403 );
+        }
         if ( PCIO_VIS_Tickets_DB::event_mode( $event_id ) !== 'tickets' ) {
             return new WP_REST_Response( [ 'message' => __( 'This event does not sell tickets.', 'pcio-vis-tickets' ) ], 400 );
         }
 
-        $name  = sanitize_text_field( $body['name'] ?? '' );
-        $email = sanitize_email( $body['email'] ?? '' );
-        $phone = sanitize_text_field( $body['phone'] ?? '' );
-        if ( '' === $name || ! is_email( $email ) ) {
-            return new WP_REST_Response( [ 'message' => __( 'Please provide your name and a valid email address.', 'pcio-vis-tickets' ) ], 422 );
+        $registered_required  = PCIO_VIS_Tickets_DB::requires_registered_customer( $event );
+        $registered_customer = $registered_required ? PCIO_VIS_Tickets_DB::current_registered_customer() : null;
+        if ( $registered_required && ! $registered_customer ) {
+            return new WP_REST_Response( [ 'message' => __( 'Please sign in with the member account required for this event.', 'pcio-vis-tickets' ) ], 403 );
+        }
+        if ( $registered_customer ) {
+            $name  = $registered_customer['name'];
+            $email = $registered_customer['email'];
+            $phone = $registered_customer['phone'];
+        } else {
+            $name  = sanitize_text_field( $body['name'] ?? '' );
+            $email = sanitize_email( $body['email'] ?? '' );
+            $phone = sanitize_text_field( $body['phone'] ?? '' );
+            if ( '' === $name || ! is_email( $email ) ) {
+                return new WP_REST_Response( [ 'message' => __( 'Please provide your name and a valid email address.', 'pcio-vis-tickets' ) ], 422 );
+            }
         }
 
         // Validate & price the requested items server-side.
         $settings   = PCIO_VIS_Tickets_DB::get_settings( $event_id );
-        $per_buyer  = (int) $settings['max_entrance_per_buyer'];
+        $per_buyer  = $registered_customer ? 1 : (int) $settings['max_entrance_per_buyer'];
         $items      = [];
         $line_items = [];
         $total      = 0;
@@ -461,6 +538,12 @@ class PCIO_VIS_Tickets_Rest {
             $type = PCIO_VIS_Tickets_DB::get_type( $type_id );
             if ( ! $type || (int) $type['event_id'] !== $event_id ) {
                 return new WP_REST_Response( [ 'message' => __( 'One of the selected tickets is not available.', 'pcio-vis-tickets' ) ], 409 );
+            }
+            if ( ! PCIO_VIS_Tickets_DB::can_purchase_type( $type, $event ) ) {
+                return new WP_REST_Response(
+                    [ 'message' => PCIO_VIS_Events_DB::access_denied_message( PCIO_VIS_Tickets_DB::type_access( $type, $event ) ) ],
+                    403
+                );
             }
             $max = PCIO_VIS_Tickets_DB::type_purchasable_qty( $type );
             if ( $max < 1 ) {
@@ -490,6 +573,20 @@ class PCIO_VIS_Tickets_Rest {
             return new WP_REST_Response( [ 'message' => __( 'Please select at least one ticket.', 'pcio-vis-tickets' ) ], 422 );
         }
 
+        // Optional buyer-paid Stripe service fee — one figure per order, never
+        // per ticket. Free events (subtotal 0) are never charged.
+        $fee = PCIO_VIS_Tickets_Fees::order_fee_cents( $total );
+        if ( $fee > 0 ) {
+            $line_items[] = [ 'name' => __( 'Service fee', 'pcio-vis-tickets' ), 'unit_amount_cents' => $fee, 'qty' => 1 ];
+            $summary[]    = __( 'Service fee', 'pcio-vis-tickets' ) . ': ' . PCIO_VIS_Tickets_Admin::format_money( $fee, $currency );
+        }
+
+        if ( $registered_customer && $entrance > 0
+            && ( PCIO_VIS_Tickets_DB::member_has_active_guest_signup( $event_id, (int) $registered_customer['member_id'] )
+                || PCIO_VIS_Tickets_DB::member_has_entrance_order( $event_id, (int) $registered_customer['member_id'] ) ) ) {
+            return new WP_REST_Response( [ 'message' => __( 'This account is already registered for this event.', 'pcio-vis-tickets' ) ], 409 );
+        }
+
         // Per-buyer entrance cap and overall capacity re-check.
         if ( $per_buyer > 0 && $entrance > $per_buyer ) {
             return new WP_REST_Response(
@@ -513,10 +610,12 @@ class PCIO_VIS_Tickets_Rest {
             $order_id    = PCIO_VIS_Tickets_DB::create_order( [
                 'event_id'     => $event_id,
                 'customer_id'  => $customer_id,
+                'member_id'    => $registered_customer ? (int) $registered_customer['member_id'] : 0,
                 'email'        => $email,
                 'status'       => 'pending',
                 'summary'      => implode( ', ', $summary ),
-                'amount_cents' => $total,
+                'amount_cents' => $total + $fee,
+                'fee_cents'    => $fee,
                 'currency'     => $currency,
             ] );
             if ( ! $order_id ) {
@@ -551,6 +650,8 @@ class PCIO_VIS_Tickets_Rest {
                         409
                     );
                 }
+
+                do_action( 'pcio_met_order_first_confirmed', $order_id );
 
                 /**
                  * Fires when an order is confirmed (free or paid). Phase 5 uses
@@ -736,6 +837,7 @@ class PCIO_VIS_Tickets_Rest {
             do_action( 'pcio_met_order_oversold', $order_id );
         }
 
+        do_action( 'pcio_met_order_first_confirmed', $order_id );
         /** Fires when an order is confirmed (free or paid). @param int $order_id */
         do_action( 'pcio_met_order_confirmed', $order_id );
     }
@@ -764,7 +866,8 @@ class PCIO_VIS_Tickets_Rest {
 
         $total          = (int) $order['amount_cents'];
         $already        = (int) $order['refunded_cents'];
-        $refundable     = max( 0, $total - $already );
+        $fee            = (int) ( $order['fee_cents'] ?? 0 );
+        $refundable     = PCIO_VIS_Tickets_Fees::refundable_cents( $total, $fee, $already );
         $params         = (array) ( $req->get_json_params() ?? [] );
         $requested      = isset( $params['amount_cents'] ) ? max( 0, (int) $params['amount_cents'] ) : $refundable;
         $amount         = min( $requested, $refundable );
@@ -797,10 +900,11 @@ class PCIO_VIS_Tickets_Rest {
             return new WP_REST_Response( [ 'message' => $refund->get_error_message() ], 502 );
         }
 
-        // Trust Stripe's reported amount when present.
+// Trust Stripe's reported amount when present. The fee share is never
+        // refunded, so "fully refunded" means the refundable part only.
         $refunded_now = isset( $refund['amount'] ) ? (int) $refund['amount'] : $amount;
-        $new_total    = min( $total, $already + $refunded_now );
-        $new_status   = $new_total >= $total ? 'refunded' : 'partly_refunded';
+        $new_total    = min( $refundable, $already + $refunded_now );
+        $new_status   = $new_total >= $refundable ? 'refunded' : 'partly_refunded';
 
         PCIO_VIS_Tickets_DB::update_order(
             $order_id,
@@ -848,5 +952,97 @@ class PCIO_VIS_Tickets_Rest {
         do_action( 'pcio_met_order_confirmed', $order_id );
 
         return new WP_REST_Response( [ 'sent' => true ], 200 );
+    }
+
+    // ── Event reports (Finance tab) ───────────────────────────────
+
+    /**
+     * Event report overview shaped for the Finance "Event reports" table.
+     * Free events are included with a "Gratis" status, so the list stays
+     * complete; the status filter field hides them on demand.
+     */
+    public function list_reports_finance(): WP_REST_Response {
+        return new WP_REST_Response( PCIO_VIS_Tickets_Reports::list_report_rows(), 200 );
+    }
+
+    /**
+     * Stream the report PDF inline (format=view) or as a download.
+     * Links carry a wp_rest nonce; finance capability is enforced via the
+     * permission callback.
+     */
+    public function report_pdf( WP_REST_Request $req ): void {
+        $report_id = (int) $req->get_param( 'id' );
+        $format    = sanitize_key( (string) $req->get_param( 'format' ) );
+        $path      = PCIO_VIS_Tickets_Reports::generate_pdf( $report_id );
+        if ( is_wp_error( $path ) ) {
+            wp_die( esc_html( $path->get_error_message() ), '', [ 'response' => 404 ] );
+        }
+        if ( ! file_exists( $path ) ) {
+            wp_die( esc_html__( 'The PDF could not be generated.', 'pcio-vis-tickets' ), '', [ 'response' => 404 ] );
+        }
+        status_header( 200 );
+        nocache_headers();
+        header( 'Content-Type: application/pdf' );
+        header( 'Content-Length: ' . (string) (int) filesize( $path ) );
+        header( 'Content-Disposition: ' . ( 'download' === $format ? 'attachment' : 'inline' ) . '; filename="' . basename( $path ) . '"' );
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- raw PDF byte stream.
+        echo file_get_contents( $path );
+        exit;
+    }
+
+    /**
+     * Pay out a report (default: the full remaining amount). Body:
+     * amount_cents (optional, manual partial), description (optional).
+     */
+    public function payout_report( WP_REST_Request $req ): WP_REST_Response {
+        $report_id = (int) $req->get_param( 'id' );
+        $report    = PCIO_VIS_Tickets_Reports::get_report( $report_id );
+        if ( ! $report ) {
+            return new WP_REST_Response( [ 'message' => __( 'Report not found.', 'pcio-vis-tickets' ) ], 404 );
+        }
+        // Refresh first: it re-derives the mode of the report's money, and
+        // attempt_payout() refuses when that mode does not match the active keys.
+        $report = PCIO_VIS_Tickets_Reports::refresh_report( (int) $report['event_id'] );
+        if ( ! $report ) {
+            return new WP_REST_Response( [ 'message' => __( 'Report not found.', 'pcio-vis-tickets' ) ], 404 );
+        }
+
+        $amount = $req->get_param( 'amount_cents' );
+        $amount = null === $amount || '' === $amount ? null : absint( $amount );
+        $result = PCIO_VIS_Tickets_Reports::attempt_payout( $report, $amount, (string) $req->get_param( 'description' ) );
+        if ( is_wp_error( $result ) ) {
+            return new WP_REST_Response( [ 'message' => $result->get_error_message() ], 409 );
+        }
+        return new WP_REST_Response( [ 'payout' => true ], 200 );
+    }
+
+    /**
+     * (Re)send the report email to the configured receivers.
+     */
+    public function mail_report( WP_REST_Request $req ): WP_REST_Response {
+        $report_id = (int) $req->get_param( 'id' );
+        if ( ! PCIO_VIS_Tickets_Reports::get_report( $report_id ) ) {
+            return new WP_REST_Response( [ 'message' => __( 'Report not found.', 'pcio-vis-tickets' ) ], 404 );
+        }
+        $sent = PCIO_VIS_Tickets_Reports::send_report_mail( $report_id );
+        if ( is_wp_error( $sent ) ) {
+            return new WP_REST_Response( [ 'message' => $sent->get_error_message() ], 409 );
+        }
+        return new WP_REST_Response( [ 'sent' => true ], 200 );
+    }
+
+    /**
+     * Delete a report; blocked while audited payout rows exist.
+     */
+    public function delete_report( WP_REST_Request $req ): WP_REST_Response {
+        $report_id = (int) $req->get_param( 'id' );
+        if ( ! PCIO_VIS_Tickets_Reports::get_report( $report_id ) ) {
+            return new WP_REST_Response( [ 'message' => __( 'Report not found.', 'pcio-vis-tickets' ) ], 404 );
+        }
+        $deleted = PCIO_VIS_Tickets_Reports::delete_report( $report_id );
+        if ( ! $deleted ) {
+            return new WP_REST_Response( [ 'message' => __( 'The report has payout postings and cannot be deleted.', 'pcio-vis-tickets' ) ], 409 );
+        }
+        return new WP_REST_Response( [ 'deleted' => true ], 200 );
     }
 }

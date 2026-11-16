@@ -260,6 +260,36 @@
 .met-event-signup {
 	margin-top: 4px;
 }
+.met-event-signup__types {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-bottom: 14px;
+}
+.met-event-signup__type {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #e2e8f0;
+	font-size: 14px;
+	line-height: 1.4;
+}
+.met-event-signup__type:last-child {
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+.met-event-signup__name {
+	min-width: 0;
+	color: #334155;
+}
+.met-event-signup__price {
+	color: #0f172a;
+	font-weight: 600;
+	text-align: right;
+	white-space: nowrap;
+}
 .met-event-signup__btn {
 	display: inline-block;
 	width: 100%;

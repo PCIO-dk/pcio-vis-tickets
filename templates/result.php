@@ -19,7 +19,6 @@ $pcio_vis_order    = $pcio_vis_v['order'];
 $pcio_vis_accepted = ( $pcio_vis_v['view'] === 'accepted' );
 $pcio_vis_paid     = $pcio_vis_order && in_array( $pcio_vis_order['status'], [ 'paid', 'free_confirmed' ], true );
 
-get_header();
 ?>
 <div class="met-result">
     <?php if ( $pcio_vis_accepted ) : ?>
@@ -88,5 +87,3 @@ get_header();
 
     <?php endif; ?>
 </div>
-<?php
-get_footer();

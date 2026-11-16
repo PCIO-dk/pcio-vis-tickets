@@ -4,7 +4,7 @@
  * Served at /tickets/checkout?event={slug|id} by PCIO_VIS_Tickets_Frontend.
  *
  * $pcio_met_view:
- *   event, event_id, title, types[], currency, soldout, event_url
+ *   event, event_id, title, types[], currency, soldout, restricted, notice, event_url
  */
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -15,7 +15,6 @@ if ( empty( $pcio_vis_v ) ) {
     return;
 }
 
-get_header();
 ?>
 <div class="met-checkout">
     <a class="met-checkout__back" href="<?php echo esc_url( $pcio_vis_v['event_url'] ); ?>">
@@ -25,11 +24,15 @@ get_header();
     <h1 class="met-checkout__title"><?php echo esc_html( $pcio_vis_v['title'] ); ?></h1>
     <p class="met-checkout__sub"><?php esc_html_e( 'Buy tickets', 'pcio-vis-tickets' ); ?></p>
 
-    <?php if ( $pcio_vis_v['soldout'] ) : ?>
+<?php if ( ! empty( $pcio_vis_v['notice'] ) ) : ?>
         <div class="met-notice met-notice--warn">
-            <?php esc_html_e( 'Sorry — there are no tickets available for this event right now.', 'pcio-vis-tickets' ); ?>
+            <?php echo esc_html( $pcio_vis_v['notice'] ); ?>
         </div>
     <?php else : ?>
+
+        <?php if ( ! empty( $pcio_vis_v['already_registered'] ) ) : ?>
+            <div class="met-notice met-notice--warn"><?php esc_html_e( 'This account is already registered for this event.', 'pcio-vis-tickets' ); ?></div>
+        <?php endif; ?>
 
     <form id="met-checkout-form" class="met-checkout__form" novalidate>
         <section class="met-card">
@@ -69,19 +72,28 @@ get_header();
 
         <section class="met-card">
             <h2 class="met-card__title"><?php esc_html_e( 'Your details', 'pcio-vis-tickets' ); ?></h2>
-            <div class="met-field">
-                <label for="met-name"><?php esc_html_e( 'Full name', 'pcio-vis-tickets' ); ?></label>
-                <input type="text" id="met-name" name="name" autocomplete="name" required>
-            </div>
-            <div class="met-field">
-                <label for="met-email"><?php esc_html_e( 'Email', 'pcio-vis-tickets' ); ?></label>
-                <input type="email" id="met-email" name="email" autocomplete="email" required>
+            <?php if ( ! empty( $pcio_vis_v['registered_customer'] ) ) : ?>
+                <p><?php echo esc_html( $pcio_vis_v['registered_customer']['name'] ); ?></p>
+                <p><?php echo esc_html( $pcio_vis_v['registered_customer']['email'] ); ?></p>
                 <p class="met-field__help"><?php esc_html_e( 'Your tickets will be emailed to this address.', 'pcio-vis-tickets' ); ?></p>
-            </div>
-            <div class="met-field">
-                <label for="met-phone"><?php esc_html_e( 'Phone (optional)', 'pcio-vis-tickets' ); ?></label>
-                <input type="tel" id="met-phone" name="phone" autocomplete="tel">
-            </div>
+                <input type="hidden" id="met-name" name="name" value="<?php echo esc_attr( $pcio_vis_v['registered_customer']['name'] ); ?>">
+                <input type="hidden" id="met-email" name="email" value="<?php echo esc_attr( $pcio_vis_v['registered_customer']['email'] ); ?>">
+                <input type="hidden" id="met-phone" name="phone" value="<?php echo esc_attr( $pcio_vis_v['registered_customer']['phone'] ); ?>">
+            <?php else : ?>
+                <div class="met-field">
+                    <label for="met-name"><?php esc_html_e( 'Full name', 'pcio-vis-tickets' ); ?></label>
+                    <input type="text" id="met-name" name="name" autocomplete="name" required>
+                </div>
+                <div class="met-field">
+                    <label for="met-email"><?php esc_html_e( 'Email', 'pcio-vis-tickets' ); ?></label>
+                    <input type="email" id="met-email" name="email" autocomplete="email" required>
+                    <p class="met-field__help"><?php esc_html_e( 'Your tickets will be emailed to this address.', 'pcio-vis-tickets' ); ?></p>
+                </div>
+                <div class="met-field">
+                    <label for="met-phone"><?php esc_html_e( 'Phone (optional)', 'pcio-vis-tickets' ); ?></label>
+                    <input type="tel" id="met-phone" name="phone" autocomplete="tel">
+                </div>
+            <?php endif; ?>
         </section>
 
         <div id="met-checkout-error" class="met-notice met-notice--error" hidden></div>
@@ -96,5 +108,3 @@ get_header();
 
     <?php endif; ?>
 </div>
-<?php
-get_footer();

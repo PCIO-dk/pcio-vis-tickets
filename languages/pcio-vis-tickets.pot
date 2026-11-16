@@ -1,7 +1,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PCIO VIS Tickets 1.0.0\n"
+"Project-Id-Version: PCIO VIS Tickets 1.2.0\n"
 "Report-Msgid-Bugs-To: https://www.pcio.dk/\n"
 "POT-Creation-Date: 2026-10-18 22:09+0200\n"
 "PO-Revision-Date: \n"
@@ -653,4 +653,661 @@ msgid "available"
 msgstr ""
 
 msgid "pc."
+msgstr ""
+
+msgid "Member ID"
+msgstr ""
+
+msgid "Please sign in with the member account required for this event."
+msgstr ""
+
+msgid "This account is already registered for this event."
+msgstr ""
+#: includes/
+#, php-format
+msgid "Event reports"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Automatic payout"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Pay out finished events automatically"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "A daily check pays out finished events that have waited the configured delay. The check only pays out when the Stripe balance is sufficient; otherwise the report is flagged \"awaiting Stripe balance\" on the Finance page and retried the next day."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Payout delay (days)"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Number of days after the event end before the report becomes payable (and, with automatic payout enabled, is paid out). Default 3."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Stripe fee estimate (base)"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Fallback fee per Stripe transaction (kr) used when the exact fees cannot be read from Stripe."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Stripe fee estimate (percent)"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Fallback processing fee (percent of the gross amount) used together with the base fee when the exact fees cannot be read from Stripe."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Report receivers"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Remove"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "No receivers yet — finished event reports are still shown on the Finance page, and nobody receives them as email. Add at least one email address below."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Add an email address and press Save — the report PDF for finished events is sent to this list."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Next report scan"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The next automatic report and payout scan runs %s."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The automatic report scan is scheduled on activation and has not been registered yet."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Event report"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Event payout"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Event #%1$d report (%2$s)"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Event #%1$d payout (%2$d)"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Event end"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Report mailed at"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Last error"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Stripe payout"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Stripe balance transaction"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Stripe status"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Arrival date"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Amount (minor units)"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Description"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Report"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Finished"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Ticket revenue"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Stripe fee"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Net"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Paid out"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Transferred"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "PDF"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Free event"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Awaiting delay"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Due to be paid"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Awaiting Stripe balance"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Paying out…"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Payout failed"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Report not found."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "There is nothing left to pay out for this event."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The remaining amount (%1$s) is below the minimum payout amount (%2$s). No payout is created."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The payout amount cannot exceed the remaining net amount."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The Stripe balance could not be read. No payout is created."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Awaiting Stripe balance: the account holds %1$s of the due %2$s. The payout is postponed."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "A payout for this event is already being processed."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Ticket payout — %s"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Ticket payout"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Ticket payout failed for %s"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The automatic ticket payout for \"%1$s\" failed. The report is flagged in the Finance tab and the payout is retried tomorrow. Error: %2$s"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The report email could not be sent."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "No event report receivers are configured. Add email addresses under Vis → Tickets."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The report has payout postings and cannot be deleted."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The PDF could not be generated."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The PDF library is unavailable."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Payout amount must be positive."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Financial summary"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Net amount"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Paid out: %1$s — remaining: %2$s"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Payout postings"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Created"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Unit price"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Revenue"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Ticket buyers"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Finished: %1$s — %2$s"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "The automatic report for the event <strong>%1$s</strong> is ready. Net ticket sales: %2$s. The report is attached as a PDF."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Open the <a href=\"%s\">Finance page</a> to manage payouts."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Ticket report — %s"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Payout"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Payout failed."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Payout created."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Full remaining amount is prefilled. The amount cannot exceed the remaining net amount and must be at least the Stripe minimum."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Delete report"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Delete this event report?"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Report deleted."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Could not delete the report — payout postings block deletion."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Send report email"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Email the report PDF to the configured receivers?"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Send"
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Report email sent."
+msgstr ""
+
+#: includes/
+#, php-format
+msgid "Could not send the report email."
+msgstr ""
+
+msgid "Note"
+msgstr ""
+
+msgid "Ticket payouts & event reports"
+msgstr ""
+
+msgid "Refreshes ticket event reports and pays out finished events through Stripe after the configured delay (Vis → Tickets → Event reports). Reports awaiting the Stripe balance are retried on the next run, and the report PDF is emailed to the configured receivers."
+msgstr ""
+
+msgid "Automatic payout is disabled. Reports refreshed: %d."
+msgstr ""
+
+msgid "Reports refreshed: %1$d. Payouts created: %2$d. Awaiting Stripe balance: %3$d. Errors: %4$d."
+msgstr ""
+
+msgid "The report scan is not registered yet. Open Vis → Sync Jobs once to register it."
+msgstr ""
+
+msgid "The report scan job is disabled. Enable “Ticket payouts & event reports” under Vis → Sync Jobs."
+msgstr ""
+
+msgid "The scan job is enabled and will be scheduled on the next admin request."
+msgstr ""
+
+msgid "Stripe mode"
+msgstr ""
+
+msgid "Active Stripe mode: Live. Event reports and payouts below cover live payments only."
+msgstr ""
+
+msgid "Active Stripe mode: Test. Event reports and payouts below cover test payments only; test payouts move no real money and report emails are not sent."
+msgstr ""
+
+msgid "This report belongs to Stripe %1$s mode, but the active mode is %2$s. Switch the mode under Vis → Tickets to pay it out."
+msgstr ""
+
+msgid "The site is in Stripe test mode. Report emails are sent only for live-mode reports."
+msgstr ""
+
+msgid "Ticket fees"
+msgstr ""
+
+msgid "Pass fee to buyers"
+msgstr ""
+
+msgid "Add a service fee to every checkout order (tickets, products and renewals)"
+msgstr ""
+
+msgid "A single fee per order — never per item — paid by the buyer on top of the stated prices. It applies to all payment methods alike: a payment-specific surcharge would violate the Stripe rules in the EU. When disabled, the organisation covers the Stripe costs itself."
+msgstr ""
+
+msgid "Fee basis per order (kr)"
+msgstr ""
+
+msgid "Flat amount added to every order. These figures are also used to estimate the Stripe fee in event reports when the exact fees cannot be read from Stripe."
+msgstr ""
+
+msgid "Fee percent of order ( % )"
+msgstr ""
+
+msgid "Percentage of the order subtotal, rounded up to whole øre, added together with the base amount."
+msgstr ""
+
+msgid "Service fee"
+msgstr ""
+
+msgid "Service fee (cents)"
+msgstr ""
+
+msgid "Event reports (test)"
+msgstr ""
+
+msgid "Stripe mode: Live. Stripe actions use the live keys. Event reports show all orders regardless of mode; payouts are made from the live balance."
+msgstr ""
+
+msgid "Stripe mode: Test. Stripe actions use test keys only. Event reports and amounts are unaffected; a report containing live payments can only be paid out in Live mode. Report emails follow the cron test setting."
+msgstr ""
+
+msgid "This report mixes Stripe test and live payments and cannot be paid out automatically."
+msgstr ""
+
+msgid "This report contains %1$s payments, but Vis Tickets is using %2$s Stripe keys. Switch the mode under Vis → Tickets to pay it out."
+msgstr ""
+
+msgid "Cron test mode is enabled. Report emails are not sent while testing."
+msgstr ""
+
+msgid "Data coverage: %1$d events with confirmed orders, %2$d report rows. Reports are created from orders, not copied from Fjordglimt — if the event count is lower than expected, the ticket-sales import skipped orders (see its plan page: unmatched events / missing ticket types)."
+msgstr ""
+
+msgid "Data coverage: %1$d events with confirmed orders, %2$d report rows. Order rows: %3$d (paid %4$d, refunded %5$d, free %6$d). Reports are built from these orders, not copied from Fjordglimt."
+msgstr ""
+
+msgid "Database columns missing on the ticket orders table: %s. Load this page again once to apply the upgrade; if the message stays, the database user cannot alter tables."
+msgstr ""
+
+msgid "Last database error: %s"
+msgstr ""
+
+msgid "Recreate event reports now"
+msgstr ""
+
+msgid "Creates one report row per event with confirmed orders. No payouts are made and no emails are sent."
+msgstr ""
+
+msgid "Event reports rebuilt from orders: %d report rows."
+msgstr ""
+
+msgid "date"
+msgstr ""
+
+msgid "event"
+msgstr ""
+
+msgid "revenue"
+msgstr ""
+
+msgid "refunded"
+msgstr ""
+
+msgid "fee"
+msgstr ""
+
+msgid "net"
+msgstr ""
+
+msgid "status"
+msgstr ""
+
+msgid "paid"
+msgstr ""
+
+msgid "transferred"
+msgstr ""
+
+msgid "stripe"
+msgstr ""
+
+msgid "report"
+msgstr ""
+
+msgid "Already paid out."
+msgstr ""
+
+msgid "Switch Vis Tickets to %s Stripe mode to pay out this report."
+msgstr ""
+
+msgid "Report logo"
+msgstr ""
+
+msgid "No logo selected."
+msgstr ""
+
+msgid "Select report logo"
+msgstr ""
+
+msgid "Select logo"
+msgstr ""
+
+msgid "Shown in the header of the event report PDF. A transparent PNG works best (max ~190 × 72 px)."
+msgstr ""
+
+msgid "In transit"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Payout report"
+msgstr ""
+
+msgid "Payouts from Stripe to %s"
+msgstr ""
+
+msgid "Generated by the Vis ticket system"
+msgstr ""
+
+msgid "Report date: %s"
+msgstr ""
+
+msgid "Total ticket revenue"
+msgstr ""
+
+msgid "Net ticket revenue"
+msgstr ""
+
+msgid "Total fee income"
+msgstr ""
+
+msgid "Stripe fee share"
+msgstr ""
+
+msgid "Total payout to %s"
+msgstr ""
+
+msgid "All amounts include VAT."
+msgstr ""
+
+msgid "Remaining amount not yet paid out: %s"
+msgstr ""
+
+msgid "Payout date"
+msgstr ""
+
+msgid "Paid in total"
+msgstr ""
+
+msgid "Ticket name"
+msgstr ""
+
+msgid "No payouts recorded yet."
+msgstr ""
+
+msgid "No ticket sales recorded."
+msgstr ""
+
+msgid "Report PDF"
 msgstr ""

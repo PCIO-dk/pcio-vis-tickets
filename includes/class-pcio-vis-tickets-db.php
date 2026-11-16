@@ -16,8 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   me_t_ticket_types   – the ticket types offered for an event. Only
  *                         `is_entrance` types count toward `max_guests`.
  *   me_t_customers      – buyers (deduplicated by email).
- *   me_t_orders         – one purchase. `status` tracks the lifecycle; free
- *                         orders skip Stripe and go straight to free_confirmed.
+* me_t_orders         – one purchase. `status` tracks the lifecycle; free
+*                         orders skip Stripe and go straight to free_confirmed.
+*                         `fee_cents` is the service-fee share of
+*                         `amount_cents` when fee pass-through is enabled.
  *   me_t_order_items    – the chosen ticket types + quantities for an order.
  *   me_t_tickets        – one row per issued ticket (one QR each).
  *
@@ -25,12 +27,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class PCIO_VIS_Tickets_DB {
 
-    const TABLE_SETTINGS    = 'me_t_event_settings';
-    const TABLE_TYPES       = 'me_t_ticket_types';
-    const TABLE_CUSTOMERS   = 'me_t_customers';
-    const TABLE_ORDERS      = 'me_t_orders';
-    const TABLE_ORDER_ITEMS = 'me_t_order_items';
-    const TABLE_TICKETS     = 'me_t_tickets';
+    const TABLE_SETTINGS      = 'me_t_event_settings';
+    const TABLE_TYPES         = 'me_t_ticket_types';
+    const TABLE_CUSTOMERS     = 'me_t_customers';
+    const TABLE_ORDERS        = 'me_t_orders';
+    const TABLE_ORDER_ITEMS   = 'me_t_order_items';
+    const TABLE_TICKETS       = 'me_t_tickets';
+    const TABLE_REPORTS       = 'me_t_event_reports';
+    const TABLE_PAYOUTS       = 'me_t_event_payouts';
 
     const ORDER_STATUSES = [
         'pending',          // awaiting payment (Stripe session open)
@@ -86,6 +90,7 @@ class PCIO_VIS_Tickets_DB {
             'ignore'    => $ignore,
             'fields'    => [
                 'name'        => __( 'Name', 'pcio-vis-tickets' ),
+                'access'      => __( 'Who can purchase', 'pcio-vis-tickets' ),
                 'is_entrance' => __( 'Entrance ticket', 'pcio-vis-tickets' ),
                 'price_cents' => __( 'Price (cents)', 'pcio-vis-tickets' ),
                 'currency'    => __( 'Currency', 'pcio-vis-tickets' ),
@@ -125,10 +130,12 @@ class PCIO_VIS_Tickets_DB {
                 'order_no'              => __( 'Order number', 'pcio-vis-tickets' ),
                 'event_id'              => __( 'Event', 'pcio-vis-tickets' ),
                 'customer_id'           => __( 'Customer', 'pcio-vis-tickets' ),
+                'member_id'             => __( 'Member ID', 'pcio-vis-tickets' ),
                 'email'                 => __( 'Email', 'pcio-vis-tickets' ),
                 'status'                => __( 'Status', 'pcio-vis-tickets' ),
                 'summary'               => __( 'Summary', 'pcio-vis-tickets' ),
                 'amount_cents'          => __( 'Amount (cents)', 'pcio-vis-tickets' ),
+                'fee_cents'             => __( 'Service fee (cents)', 'pcio-vis-tickets' ),
                 'refunded_cents'        => __( 'Refunded (cents)', 'pcio-vis-tickets' ),
                 'currency'              => __( 'Currency', 'pcio-vis-tickets' ),
                 'stripe_session_id'     => __( 'Stripe session', 'pcio-vis-tickets' ),
@@ -183,6 +190,62 @@ class PCIO_VIS_Tickets_DB {
             },
         ];
 
+        $tables['met_event_reports'] = [
+            'table'     => self::TABLE_REPORTS,
+            'label'     => __( 'Event report', 'pcio-vis-tickets' ),
+            'title_col' => 'event_id',
+            'title'     => static function ( array $row ): string {
+                return sprintf(
+                    /* translators: 1: event ID, 2: currency. */
+                    __( 'Event #%1$d report (%2$s)', 'pcio-vis-tickets' ),
+                    (int) ( $row['event_id'] ?? 0 ),
+                    (string) ( $row['currency'] ?? '' )
+                );
+            },
+            'undoable'  => false,
+            'weight'    => 5,
+            'ignore'    => $ignore,
+            'fields'    => [
+                'event_id'    => __( 'Event', 'pcio-vis-tickets' ),
+                'event_end'   => __( 'Event end', 'pcio-vis-tickets' ),
+                'currency'    => __( 'Currency', 'pcio-vis-tickets' ),
+                'mode'        => __( 'Stripe mode', 'pcio-vis-tickets' ),
+                'status'      => __( 'Status', 'pcio-vis-tickets' ),
+                'mail_sent_at'=> __( 'Report mailed at', 'pcio-vis-tickets' ),
+                'last_error'  => __( 'Last error', 'pcio-vis-tickets' ),
+            ],
+            'links'     => $event_link,
+        ];
+
+        $tables['met_event_payouts'] = [
+            'table'     => self::TABLE_PAYOUTS,
+            'label'     => __( 'Event payout', 'pcio-vis-tickets' ),
+            'title_col' => 'id',
+            'title'     => static function ( array $row ): string {
+                return sprintf(
+                    /* translators: 1: event ID, 2: payout amount (minor units). */
+                    __( 'Event #%1$d payout (%2$d)', 'pcio-vis-tickets' ),
+                    (int) ( $row['event_id'] ?? 0 ),
+                    (int) ( $row['payout_amount'] ?? 0 )
+                );
+            },
+            'undoable'  => false,
+            'weight'    => 5,
+            'ignore'    => $ignore,
+            'fields'    => [
+                'event_report_id'                   => __( 'Report', 'pcio-vis-tickets' ),
+                'event_id'                          => __( 'Event', 'pcio-vis-tickets' ),
+                'mode'                              => __( 'Stripe mode', 'pcio-vis-tickets' ),
+                'description'                       => __( 'Description', 'pcio-vis-tickets' ),
+                'payout_amount'                     => __( 'Amount (minor units)', 'pcio-vis-tickets' ),
+                'stripe_payout_id'                  => __( 'Stripe payout', 'pcio-vis-tickets' ),
+                'stripe_balance_transaction_id'     => __( 'Stripe balance transaction', 'pcio-vis-tickets' ),
+                'stripe_status'                     => __( 'Stripe status', 'pcio-vis-tickets' ),
+                'payout_date'                       => __( 'Arrival date', 'pcio-vis-tickets' ),
+            ],
+            'links'     => $event_link,
+        ];
+
         return $tables;
     }
 
@@ -228,13 +291,21 @@ class PCIO_VIS_Tickets_DB {
         global $wpdb;
         return $wpdb->prefix . self::TABLE_TICKETS;
     }
+    public static function t_event_reports(): string {
+        global $wpdb;
+        return $wpdb->prefix . self::TABLE_REPORTS;
+    }
+    public static function t_event_payouts(): string {
+        global $wpdb;
+        return $wpdb->prefix . self::TABLE_PAYOUTS;
+    }
 
     // ── Schema ────────────────────────────────────────────────────
 
     public static function install(): void {
         global $wpdb;
 
-        if ( get_option( 'pcio_met_db_version' ) === PCIO_VIS_TICKETS_VERSION ) {
+        if ( get_option( 'pcio_met_db_version' ) === PCIO_VIS_TICKETS_DB_VERSION ) {
             return; // schema already current
         }
 
@@ -247,6 +318,8 @@ class PCIO_VIS_Tickets_DB {
         $orders   = self::t_orders();
         $items    = self::t_order_items();
         $tickets  = self::t_tickets();
+        $reports  = self::t_event_reports();
+        $payouts  = self::t_event_payouts();
 
         dbDelta(
             "CREATE TABLE IF NOT EXISTS {$settings} (
@@ -266,6 +339,7 @@ class PCIO_VIS_Tickets_DB {
                 id           INT          NOT NULL AUTO_INCREMENT,
                 event_id     INT          NOT NULL,
                 name         VARCHAR(200) NOT NULL DEFAULT '',
+                access       VARCHAR(20)  NOT NULL DEFAULT '',
                 is_entrance  TINYINT(1)   NOT NULL DEFAULT 1,
                 price_cents  INT          NOT NULL DEFAULT 0,
                 currency     VARCHAR(3)   NOT NULL DEFAULT 'DKK',
@@ -301,12 +375,15 @@ class PCIO_VIS_Tickets_DB {
                 token                 VARCHAR(64)  NOT NULL DEFAULT '',
                 event_id              INT          NOT NULL,
                 customer_id           INT          NOT NULL DEFAULT 0,
+                member_id             INT          NOT NULL DEFAULT 0,
                 email                 VARCHAR(190) NOT NULL DEFAULT '',
                 status                VARCHAR(20)  NOT NULL DEFAULT 'pending',
                 summary               TEXT,
                 amount_cents          INT          NOT NULL DEFAULT 0,
+                fee_cents             INT          NOT NULL DEFAULT 0,
                 refunded_cents        INT          NOT NULL DEFAULT 0,
                 currency              VARCHAR(3)   NOT NULL DEFAULT 'DKK',
+                stripe_mode           VARCHAR(10)  NOT NULL DEFAULT '',
                 stripe_session_id     VARCHAR(255) NULL DEFAULT NULL,
                 stripe_payment_intent VARCHAR(255) NULL DEFAULT NULL,
                 created               DATETIME     DEFAULT CURRENT_TIMESTAMP,
@@ -316,6 +393,7 @@ class PCIO_VIS_Tickets_DB {
                 UNIQUE KEY idx_orders_token (token),
                 UNIQUE KEY idx_orders_no (order_no),
                 KEY idx_orders_event (event_id),
+                KEY idx_orders_member_event (member_id, event_id),
                 KEY idx_orders_session (stripe_session_id)
                 ) {$charset};"
         );
@@ -329,6 +407,44 @@ class PCIO_VIS_Tickets_DB {
                 unit_price_cents INT NOT NULL DEFAULT 0,
                 PRIMARY KEY  (id),
                 KEY idx_items_order (order_id)
+                ) {$charset};"
+        );
+
+        dbDelta(
+            "CREATE TABLE IF NOT EXISTS {$reports} (
+                id            INT          NOT NULL AUTO_INCREMENT,
+                event_id      INT          NOT NULL,
+                currency      VARCHAR(3)   NOT NULL DEFAULT 'DKK',
+                mode          VARCHAR(10)  NOT NULL DEFAULT 'test',
+                event_end     DATETIME     NULL DEFAULT NULL,
+                status        VARCHAR(20)  NOT NULL DEFAULT 'pending',
+                mail_sent_at  DATETIME     NULL DEFAULT NULL,
+                last_error    VARCHAR(190) NULL DEFAULT NULL,
+                created       DATETIME     DEFAULT CURRENT_TIMESTAMP,
+                updated       DATETIME     DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY  (id),
+                KEY idx_reports_event (event_id),
+                KEY idx_reports_status (status)
+                ) {$charset};"
+        );
+
+        dbDelta(
+            "CREATE TABLE IF NOT EXISTS {$payouts} (
+                id                            INT          NOT NULL AUTO_INCREMENT,
+                event_report_id               INT          NOT NULL,
+                event_id                      INT          NOT NULL,
+                mode                          VARCHAR(10)  NOT NULL DEFAULT 'test',
+                description                   VARCHAR(255) NOT NULL DEFAULT '',
+                payout_amount                 INT          NOT NULL DEFAULT 0,
+                stripe_payout_id              VARCHAR(64)  NOT NULL DEFAULT '',
+                stripe_balance_transaction_id VARCHAR(64)  NOT NULL DEFAULT '',
+                stripe_status                 VARCHAR(20)  NOT NULL DEFAULT '',
+                payout_date                   DATETIME     NULL DEFAULT NULL,
+                created                       DATETIME     DEFAULT CURRENT_TIMESTAMP,
+                updated                       DATETIME     DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY  (id),
+                KEY idx_payouts_report (event_report_id),
+                KEY idx_payouts_event (event_id)
                 ) {$charset};"
         );
 
@@ -356,7 +472,149 @@ class PCIO_VIS_Tickets_DB {
             $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i ADD COLUMN scanned_at DATETIME NULL DEFAULT NULL', $tickets_table ) );
         }
 
-        update_option( 'pcio_met_db_version', PCIO_VIS_TICKETS_VERSION );
+        $types_table = self::t_types();
+        $type_cols   = $wpdb->get_col( $wpdb->prepare( 'SHOW COLUMNS FROM %i', $types_table ), 0 );
+        if ( ! in_array( 'access', (array) $type_cols, true ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Column added after 1.2.0.
+            $wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD COLUMN access VARCHAR(20) NOT NULL DEFAULT '' AFTER name", $types_table ) );
+        }
+
+        $order_cols = $wpdb->get_col( $wpdb->prepare( 'SHOW COLUMNS FROM %i', $orders ), 0 );
+        if ( ! in_array( 'member_id', (array) $order_cols, true ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Column added after 1.1.0.
+            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i ADD COLUMN member_id INT NOT NULL DEFAULT 0 AFTER customer_id', $orders ) );
+            $order_cols = $wpdb->get_col( $wpdb->prepare( 'SHOW COLUMNS FROM %i', $orders ), 0 );
+        }
+        if ( ! in_array( 'member_id', (array) $order_cols, true ) ) {
+            return;
+        }
+
+        // Service-fee share of `amount_cents` (fee pass-through, 1.9.0). dbDelta
+        // only adds columns to new tables, so patch existing ones directly.
+        if ( ! in_array( 'fee_cents', (array) $order_cols, true ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Column added after 1.9.0.
+            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i ADD COLUMN fee_cents INT NOT NULL DEFAULT 0 AFTER amount_cents', $orders ) );
+            $order_cols = $wpdb->get_col( $wpdb->prepare( 'SHOW COLUMNS FROM %i', $orders ), 0 );
+        }
+
+        // Stripe test/live segregation (1.8.0). Orders record the mode they were
+        // created in so event reports and payouts never mix the two accounts.
+        if ( ! in_array( 'stripe_mode', (array) $order_cols, true ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Column added after 1.8.0.
+            $wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD COLUMN stripe_mode VARCHAR(10) NOT NULL DEFAULT '' AFTER currency", $orders ) );
+            // Back-fill legacy rows: checkout session ids carry the mode.
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE %i SET stripe_mode = 'test' WHERE stripe_mode = '' AND stripe_session_id LIKE %s",
+                    $orders,
+                    'cs_test_%'
+                )
+            );
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE %i SET stripe_mode = 'live' WHERE stripe_mode = '' AND stripe_session_id LIKE %s",
+                    $orders,
+                    'cs_live_%'
+                )
+            );
+            // Remaining rows are free orders (zero value) or unresolved; they are
+            // attributed to the currently active mode so no money is ever moved
+            // from an unknown mode.
+            $current = PCIO_VIS_Tickets_Admin::stripe_mode();
+            $wpdb->query(
+                $wpdb->prepare( "UPDATE %i SET stripe_mode = %s WHERE stripe_mode = ''", $orders, $current )
+            );
+        }
+
+        // Composite member-order index added after 1.1.0. dbDelta does not diff
+        // indexes on existing tables, so add it explicitly for upgraded installs.
+        $order_indexes = $wpdb->get_col( $wpdb->prepare( 'SHOW INDEX FROM %i', $orders ), 2 );
+        if ( ! in_array( 'idx_orders_member_event', (array) $order_indexes, true ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Index added after 1.1.0.
+            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i ADD KEY idx_orders_member_event (member_id, event_id)', $orders ) );
+        }
+
+        foreach ( [ $reports, $payouts ] as $table ) {
+            $cols = $wpdb->get_col( $wpdb->prepare( 'SHOW COLUMNS FROM %i', $table ), 0 );
+            if ( ! in_array( 'mode', (array) $cols, true ) ) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Column added after 1.8.0.
+                $wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD COLUMN mode VARCHAR(10) NOT NULL DEFAULT ''", $table ) );
+                // Rows created before the split belong to the mode that was in
+                // play when they were written; tag them with the active mode so
+                // they stay visible and payable instead of turning into `test`.
+                $wpdb->query(
+                    $wpdb->prepare( "UPDATE %i SET mode = %s WHERE mode = ''", $table, PCIO_VIS_Tickets_Admin::stripe_mode() )
+                );
+            }
+        }
+
+        // 1.9.1: orders imported by the Fjordglimt migration script after the
+        // 1.8.0 column patch keep an empty `stripe_mode`. Left alone they are
+        // invisible to both modes, so their reports read 0. Infer the mode from
+        // the checkout-session prefix; remaining rows are legacy production
+        // sales (live) unless a site filters this to a different default.
+        $legacy_mode = (string) apply_filters( 'pcio_met_legacy_order_mode', 'live' );
+        $legacy_mode = 'test' === $legacy_mode ? 'test' : 'live';
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- internal table names, no user input.
+        $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE %i SET stripe_mode = 'test' WHERE stripe_mode = '' AND stripe_session_id LIKE %s",
+                $orders,
+                'cs_test_%'
+            )
+        );
+        $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE %i SET stripe_mode = 'live' WHERE stripe_mode = '' AND stripe_session_id LIKE %s",
+                $orders,
+                'cs_live_%'
+            )
+        );
+        $wpdb->query( $wpdb->prepare( "UPDATE %i SET stripe_mode = %s WHERE stripe_mode = ''", $orders, $legacy_mode ) );
+
+        // 1.9.2: one report per (event, currency). Earlier versions created one
+        // per Stripe mode even though the report data is mode-neutral; merge the
+        // duplicates and keep their payout postings attached to the keeper.
+        $report_rows = $wpdb->get_results(
+            $wpdb->prepare( "SELECT id, event_id, currency FROM %i ORDER BY event_id ASC, currency ASC, id ASC", $reports ),
+            ARRAY_A
+        ) ?: [];
+        $keeper_for = [];
+        foreach ( $report_rows as $report_row ) {
+            $key = (int) $report_row['event_id'] . '|' . (string) $report_row['currency'];
+            if ( ! isset( $keeper_for[ $key ] ) ) {
+                $keeper_for[ $key ] = (int) $report_row['id'];
+                continue;
+            }
+            $keeper = $keeper_for[ $key ];
+            $extra  = (int) $report_row['id'];
+            $wpdb->update( $payouts, [ 'event_report_id' => $keeper ], [ 'event_report_id' => $extra ], [ '%d' ], [ '%d' ] );
+            $wpdb->delete( $reports, [ 'id' => $extra ], [ '%d' ] );
+        }
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+        // Materialise reports for every event that already has confirmed orders
+        // (the old per-mode implementation only created rows for some events,
+        // and its cleanup removed others). Estimate-based and side-effect free.
+        if ( class_exists( 'PCIO_VIS_Tickets_Reports' ) ) {
+            PCIO_VIS_Tickets_Reports::refresh_all_reports();
+        }
+
+        // Verify the critical columns before claiming the schema is current: a
+        // failed ALTER must not pin the version and permanently skip the patch.
+        $final_cols = (array) $wpdb->get_col( $wpdb->prepare( 'SHOW COLUMNS FROM %i', $orders ), 0 );
+        foreach ( [ 'member_id', 'stripe_mode', 'fee_cents' ] as $required ) {
+            if ( ! in_array( $required, $final_cols, true ) ) {
+                return; // retry on the next admin request
+            }
+        }
+
+        $final_type_cols = (array) $wpdb->get_col( $wpdb->prepare( 'SHOW COLUMNS FROM %i', self::t_types() ), 0 );
+        if ( ! in_array( 'access', $final_type_cols, true ) ) {
+            return; // retry on the next admin request
+        }
+
+        update_option( 'pcio_met_db_version', PCIO_VIS_TICKETS_DB_VERSION );
     }
 
     // ── Event settings ────────────────────────────────────────────
@@ -490,11 +748,18 @@ class PCIO_VIS_Tickets_DB {
             $wpdb->prepare( 'SELECT COALESCE(MAX(sort),0)+1 FROM %i WHERE event_id = %d', self::t_types(), $event_id )
         );
         $clean = self::sanitize_type( $data );
+        if ( empty( $clean['access'] ) ) {
+            $event = PCIO_VIS_Events_DB::get( $event_id );
+            $clean['access'] = $event
+                ? PCIO_VIS_Events_DB::default_access_for_event( $event )
+                : PCIO_VIS_Events_DB::ACCESS_MEMBERS;
+        }
         PCIO_VIS_History::insert(
             'met_ticket_types',
             [
                 'event_id'    => $event_id,
                 'name'        => $clean['name'] ?? '',
+                'access'      => $clean['access'] ?? '',
                 'is_entrance' => $clean['is_entrance'] ?? 1,
                 'price_cents' => $clean['price_cents'] ?? 0,
                 'currency'    => $clean['currency'] ?? 'DKK',
@@ -504,7 +769,7 @@ class PCIO_VIS_Tickets_DB {
                 'sales_stop'  => $clean['sales_stop'] ?? null,
                 'sort'        => $next_sort,
             ],
-            [ '%d', '%s', '%d', '%d', '%s', '%d', '%d', '%s', '%s', '%d' ]
+            [ '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%s', '%s', '%d' ]
         );
         return (int) $wpdb->insert_id;
     }
@@ -520,7 +785,7 @@ class PCIO_VIS_Tickets_DB {
         }
         $formats = [];
         foreach ( $clean as $field => $value ) {
-            $formats[] = in_array( $field, [ 'name', 'currency', 'sales_start', 'sales_stop' ], true ) ? '%s' : '%d';
+            $formats[] = in_array( $field, [ 'name', 'access', 'currency', 'sales_start', 'sales_stop' ], true ) ? '%s' : '%d';
         }
         $clean['updated'] = current_time( 'mysql' );
         $formats[]        = '%s';
@@ -591,33 +856,245 @@ class PCIO_VIS_Tickets_DB {
         return max( 0, $settings['max_guests'] - self::entrance_sold( $event_id ) );
     }
 
-    /**
-     * Whether a given ticket type can currently be sold: active, within its
-     * sales window, not exhausted, and (for entrance types) capacity remaining.
-     */
-    public static function type_on_sale( array $type ): bool {
-        if ( empty( $type['active'] ) ) {
+    /** Resolve a ticket type's access, falling back to the event type default. */
+    public static function type_access( array $type, array $event ): string {
+        return PCIO_VIS_Events_DB::ticket_access( $type, $event );
+    }
+
+    /** Whether the current user may purchase this ticket type. */
+    public static function can_purchase_type( array $type, array $event ): bool {
+        return PCIO_VIS_Events_DB::can_access_level( self::type_access( $type, $event ), $event );
+    }
+
+    public static function requires_registered_customer( array $event ): bool {
+        if ( self::is_registered_access( PCIO_VIS_Events_DB::event_access( $event ) ) ) {
+            return true;
+        }
+        $event_id = (int) ( $event['id'] ?? 0 );
+        if ( $event_id < 1 ) {
             return false;
+        }
+        foreach ( self::get_types( $event_id ) as $type ) {
+            if ( empty( $type['active'] ) || ! self::can_purchase_type( $type, $event ) ) {
+                continue;
+            }
+            if ( self::is_registered_access( self::type_access( $type, $event ) ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function current_registered_customer(): ?array {
+        if ( ! is_user_logged_in() || ! class_exists( 'PCIO_VIS_Signups_DB' ) || ! class_exists( 'PCIO_VIS_DB' ) ) {
+            return null;
+        }
+        $member_id = PCIO_VIS_Signups_DB::get_member_id_for_current_user();
+        if ( ! $member_id ) {
+            return null;
+        }
+        $member = PCIO_VIS_DB::get( (int) $member_id );
+        if ( ! $member ) {
+            return null;
+        }
+        $name  = sanitize_text_field( (string) ( $member['name'] ?? '' ) );
+        $email = sanitize_email( (string) ( $member['email'] ?? '' ) );
+        if ( '' === $name || ! is_email( $email ) ) {
+            return null;
+        }
+        return [
+            'member_id' => (int) $member_id,
+            'name'      => $name,
+            'email'     => $email,
+            'phone'     => sanitize_text_field( (string) ( $member['phone'] ?? '' ) ),
+        ];
+    }
+
+    public static function member_has_active_guest_signup( int $event_id, int $member_id ): bool {
+        if ( ! class_exists( 'PCIO_VIS_Signups_DB' ) ) {
+            return false;
+        }
+        $signup = PCIO_VIS_Signups_DB::get_for_member_event( $member_id, $event_id );
+        return $signup && in_array( (string) $signup['status'], [ 'joining', 'arrived' ], true );
+    }
+
+    public static function member_has_entrance_order( int $event_id, int $member_id ): bool {
+        if ( $event_id < 1 || $member_id < 1 ) {
+            return false;
+        }
+        global $wpdb;
+        $pending = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT 1
+                 FROM %i o
+                 INNER JOIN %i oi ON oi.order_id = o.id
+                 INNER JOIN %i tt ON tt.id = oi.ticket_type_id
+                 WHERE o.event_id = %d
+                   AND o.member_id = %d
+                   AND o.status = %s
+                   AND tt.is_entrance = 1
+                   AND oi.qty > 0
+                 LIMIT 1',
+                self::t_orders(),
+                self::t_order_items(),
+                self::t_types(),
+                $event_id,
+                $member_id,
+                'pending'
+            )
+        );
+        if ( $pending ) {
+            return true;
+        }
+        return (bool) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT 1
+                 FROM %i o
+                 INNER JOIN %i t ON t.order_id = o.id
+                 INNER JOIN %i tt ON tt.id = t.ticket_type_id
+                 WHERE o.event_id = %d
+                   AND o.member_id = %d
+                   AND t.status IN ('valid', 'scanned')
+                   AND tt.is_entrance = 1
+                 LIMIT 1",
+                self::t_orders(),
+                self::t_tickets(),
+                self::t_types(),
+                $event_id,
+                $member_id
+            )
+        );
+    }
+
+    public static function order_has_entrance_item( int $order_id ): bool {
+        if ( $order_id < 1 ) {
+            return false;
+        }
+        global $wpdb;
+        return (bool) $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT 1
+                 FROM %i oi
+                 INNER JOIN %i tt ON tt.id = oi.ticket_type_id
+                 WHERE oi.order_id = %d
+                   AND oi.qty > 0
+                   AND tt.is_entrance = 1
+                 LIMIT 1',
+                self::t_order_items(),
+                self::t_types(),
+                $order_id
+            )
+        );
+    }
+
+    private static function is_registered_access( string $access ): bool {
+        return in_array(
+            $access,
+            [
+                PCIO_VIS_Events_DB::ACCESS_MEMBERS,
+                PCIO_VIS_Events_DB::ACCESS_VOLUNTEERS,
+                PCIO_VIS_Events_DB::ACCESS_ACTIVE_VOLUNTEERS,
+                PCIO_VIS_Events_DB::ACCESS_INVITED,
+            ],
+            true
+        );
+    }
+
+    /**
+     * Why a ticket type is or is not sellable right now.
+     *
+     * @return string on_sale|upcoming|ended|soldout|inactive
+     */
+    public static function type_sale_state( array $type ): string {
+        if ( empty( $type['active'] ) ) {
+            return 'inactive';
         }
         $event_id = (int) $type['event_id'];
         $settings = self::get_settings( $event_id );
         if ( $settings['is_soldout'] ) {
-            return false;
+            return 'soldout';
         }
         $now = time();
         if ( ! empty( $type['sales_start'] ) && $now < strtotime( $type['sales_start'] ) ) {
-            return false;
+            return 'upcoming';
         }
         if ( ! empty( $type['sales_stop'] ) && $now > strtotime( $type['sales_stop'] ) ) {
-            return false;
+            return 'ended';
         }
         if ( $type['qty_offered'] > 0 && $type['qty_sold'] >= $type['qty_offered'] ) {
-            return false;
+            return 'soldout';
         }
         if ( ! empty( $type['is_entrance'] ) && self::entrance_available( $event_id ) < 1 ) {
-            return false;
+            return 'soldout';
         }
-        return true;
+        return 'on_sale';
+    }
+
+    /** Whether a given ticket type can currently be sold. */
+    public static function type_on_sale( array $type ): bool {
+        return 'on_sale' === self::type_sale_state( $type );
+    }
+
+    /**
+     * Purchase state for the current visitor, used by the event ticket box and
+     * the checkout page. Distinguishes access restrictions from a sale that has
+     * not started, ended or sold out.
+     *
+     * @return array{state:string,access:string,message:string}
+     */
+    public static function purchase_state( array $event ): array {
+        $event_id = (int) $event['id'];
+        $types    = self::get_types( $event_id );
+        if ( ! $types ) {
+            return [
+                'state'   => 'none',
+                'access'  => '',
+                'message' => __( 'Tickets are not available yet.', 'pcio-vis-tickets' ),
+            ];
+        }
+
+        $allowed_states = [];
+        $denied_access  = '';
+        foreach ( $types as $type ) {
+            if ( self::can_purchase_type( $type, $event ) ) {
+                $allowed_states[] = self::type_sale_state( $type );
+            } elseif ( '' === $denied_access ) {
+                $denied_access = self::type_access( $type, $event );
+            }
+        }
+
+        if ( ! $allowed_states ) {
+            return [
+                'state'   => 'restricted',
+                'access'  => $denied_access,
+                'message' => PCIO_VIS_Events_DB::access_denied_message( $denied_access ),
+            ];
+        }
+        if ( in_array( 'on_sale', $allowed_states, true ) ) {
+            return [ 'state' => 'on_sale', 'access' => '', 'message' => '' ];
+        }
+        if ( in_array( 'upcoming', $allowed_states, true ) ) {
+            return [
+                'state'   => 'upcoming',
+                'access'  => '',
+                'message' => __( 'Ticket sales have not started yet.', 'pcio-vis-tickets' ),
+            ];
+        }
+        if ( in_array( 'soldout', $allowed_states, true ) ) {
+            return [ 'state' => 'soldout', 'access' => '', 'message' => __( 'Sold out', 'pcio-vis-tickets' ) ];
+        }
+        if ( in_array( 'ended', $allowed_states, true ) ) {
+            return [
+                'state'   => 'ended',
+                'access'  => '',
+                'message' => __( 'Ticket sales have ended.', 'pcio-vis-tickets' ),
+            ];
+        }
+        return [
+            'state'   => 'unavailable',
+            'access'  => '',
+            'message' => __( 'Tickets are not available right now.', 'pcio-vis-tickets' ),
+        ];
     }
 
     /**
@@ -699,13 +1176,16 @@ class PCIO_VIS_Tickets_DB {
                 'token'        => self::generate_token(),
                 'event_id'     => (int) ( $data['event_id'] ?? 0 ),
                 'customer_id'  => (int) ( $data['customer_id'] ?? 0 ),
+                'member_id'    => absint( $data['member_id'] ?? 0 ),
                 'email'        => sanitize_email( $data['email'] ?? '' ),
                 'status'       => in_array( $data['status'] ?? 'pending', self::ORDER_STATUSES, true ) ? $data['status'] : 'pending',
                 'summary'      => wp_kses_post( $data['summary'] ?? '' ),
                 'amount_cents' => (int) ( $data['amount_cents'] ?? 0 ),
+                'fee_cents'    => max( 0, (int) ( $data['fee_cents'] ?? 0 ) ),
                 'currency'     => substr( strtoupper( $data['currency'] ?? 'DKK' ), 0, 3 ),
+                'stripe_mode'  => PCIO_VIS_Tickets_Admin::stripe_mode(),
             ],
-            [ '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%d', '%s' ]
+            [ '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%s' ]
         );
         return (int) $wpdb->insert_id;
     }
@@ -1054,6 +1534,7 @@ class PCIO_VIS_Tickets_DB {
             'id'          => (int) $row['id'],
             'event_id'    => (int) $row['event_id'],
             'name'        => (string) $row['name'],
+            'access'      => (string) ( $row['access'] ?? '' ),
             'is_entrance' => (int) $row['is_entrance'],
             'price_cents' => (int) $row['price_cents'],
             'currency'    => (string) $row['currency'],
@@ -1076,6 +1557,10 @@ class PCIO_VIS_Tickets_DB {
         $out = [];
         if ( array_key_exists( 'name', $data ) ) {
             $out['name'] = sanitize_text_field( $data['name'] );
+        }
+        if ( array_key_exists( 'access', $data ) ) {
+            $access      = sanitize_key( (string) $data['access'] );
+            $out['access'] = in_array( $access, PCIO_VIS_Events_DB::ACCESS_LEVELS, true ) ? $access : '';
         }
         if ( array_key_exists( 'is_entrance', $data ) ) {
             $out['is_entrance'] = (int) (bool) $data['is_entrance'];

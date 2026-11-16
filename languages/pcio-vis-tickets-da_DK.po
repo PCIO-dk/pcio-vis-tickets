@@ -3,10 +3,10 @@
 # This file is distributed under the GPL2 license.
 msgid ""
 msgstr ""
-"Project-Id-Version: PCIO VIS Tickets 1.0.0\n"
+"Project-Id-Version: PCIO VIS Tickets 1.2.0\n"
 "Report-Msgid-Bugs-To: https://www.pcio.dk/\n"
 "POT-Creation-Date: 2026-06-16 18:45+0000\n"
-"PO-Revision-Date: 2026-10-18 22:11+0200\n"
+"PO-Revision-Date: 2026-10-19 21:50+0200\n"
 "Last-Translator: PCIO <info@pcio.dk>\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
@@ -182,7 +182,7 @@ msgid "Maximum number of guests"
 msgstr "Maksimalt antal gæster"
 
 msgid "Member sign-up event"
-msgstr "Medlemstilmeldingsbegivenhed"
+msgstr "Begivenhed med tilmelding for medlemmer"
 
 msgid "Mode"
 msgstr "Tilstand"
@@ -819,3 +819,691 @@ msgstr "ledige"
 #: (migration)
 msgid "pc."
 msgstr "stk."
+
+#. Author URI of the plugin
+#: pcio-vis-tickets.php
+msgid "https://www.pcio.dk"
+msgstr "https://www.pcio.dk"
+
+#. Author of the plugin
+#: pcio-vis-tickets.php
+msgid "PCIO"
+msgstr "PCIO"
+
+#. Description of the plugin
+#: pcio-vis-tickets.php
+msgid "Adds paid (Stripe) and free ticket sales to PCIO VIS Member Event. Events with a guest limit sell tickets to the public; per-event ticket types, a secure checkout, PDF tickets with QR codes, and refunds. Events without a limit keep the member join/interested/not-joining signup."
+msgstr "Tilføjer betalt billetsalg (Stripe) og gratis billetsalg til PCIO VIS Member Event. Arrangementer med en deltagerbegrænsning sælger billetter til offentligheden med billettyper pr. arrangement, sikker betaling, PDF-billetter med QR-koder og mulighed for refundering. Arrangementer uden deltagerbegrænsning beholder tilmeldingen for medlemmer med valgmulighederne deltag, interesseret eller deltager ikke."
+
+#. Plugin URI of the plugin
+#: pcio-vis-tickets.php
+msgid "https://www.pcio.dk/"
+msgstr "https://www.pcio.dk/"
+
+#. Plugin Name of the plugin
+#: pcio-vis-tickets.php
+msgid "PCIO VIS Tickets"
+msgstr "PCIO VIS Billetter"
+
+#: includes/class-pcio-vis-tickets-db.php
+msgid "Member ID"
+msgstr "Medlems-ID"
+
+#: includes/class-pcio-vis-tickets-rest.php
+#: includes/class-pcio-vis-tickets-frontend.php
+msgid "Please sign in with the member account required for this event."
+msgstr "Log ind med den medlemskonto, der giver adgang til denne begivenhed."
+
+#: includes/class-pcio-vis-tickets-rest.php
+#: includes/class-pcio-vis-tickets-frontend.php
+#: templates/checkout.php
+msgid "This account is already registered for this event."
+msgstr "Denne konto er allerede tilmeldt denne begivenhed."
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Event reports"
+msgstr "Begivenhedsrapporter"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Automatic payout"
+msgstr "Automatisk udbetaling"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Pay out finished events automatically"
+msgstr "Udbetal afholdte begivenheder automatisk"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "A daily check pays out finished events that have waited the configured delay. The check only pays out when the Stripe balance is sufficient; otherwise the report is flagged \"awaiting Stripe balance\" on the Finance page and retried the next day."
+msgstr "En daglig kontrol udbetaler afholdte begivenheder, der har ventet det indstillede antal dage. Udbetaling sker kun, når Stripe-saldoen er tilstrækkelig; ellers markeres rapporten \"afventer Stripe-saldo\" på Finance-siden, og der forsøges igen den næste dag."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Payout delay (days)"
+msgstr "Udbetalingsforsinkelse (dage)"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Number of days after the event end before the report becomes payable (and, with automatic payout enabled, is paid out). Default 3."
+msgstr "Antal dage efter begivenhedens afslutning, før rapporten kan udbetales (og, når automatisk udbetaling er slået til, udbetales). Standard er 3."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Stripe fee estimate (base)"
+msgstr "Stripe-gebyrestimat (bundgebyr)"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Fallback fee per Stripe transaction (kr) used when the exact fees cannot be read from Stripe."
+msgstr "Reserve-gebyr pr. Stripe-transaktion (kr.), brugt når de præcise gebyrer ikke kan læses fra Stripe."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Stripe fee estimate (percent)"
+msgstr "Stripe-gebyrestimat (procent)"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Fallback processing fee (percent of the gross amount) used together with the base fee when the exact fees cannot be read from Stripe."
+msgstr "Reserve-behandlingsgebyr (procent af bruttobeløbet), brugt sammen med bundgebyret, når de præcise gebyrer ikke kan læses fra Stripe."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Report receivers"
+msgstr "Rapportmodtagere"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Remove"
+msgstr "Fjern"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "No receivers yet — finished event reports are still shown on the Finance page, and nobody receives them as email. Add at least one email address below."
+msgstr "Ingen modtagere endnu — rapporterne for afholdte begivenheder vises stadig på Finance-siden, men sendes ikke som e-mail. Tilføj mindst én e-mailadresse herunder."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Add an email address and press Save — the report PDF for finished events is sent to this list."
+msgstr "Tilføj en e-mailadresse og tryk Gem — rapport-PDF'en for afholdte begivenheder sendes til denne liste."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Next report scan"
+msgstr "Næste rapportscanning"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The next automatic report and payout scan runs %s."
+msgstr "Den næste automatiske rapport- og udbetalingsscanning kører %s."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The automatic report scan is scheduled on activation and has not been registered yet."
+msgstr "Den automatiske rapportscanning planlægges ved aktivering og er ikke registreret endnu."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Event report"
+msgstr "Begivenhedsrapport"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Event payout"
+msgstr "Begivenhedsudbetaling"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Event #%1$d report (%2$s)"
+msgstr "Rapport for begivenhed nr. %1$d (%2$s)"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Event #%1$d payout (%2$d)"
+msgstr "Udbetaling for begivenhed nr. %1$d (%2$d)"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Event end"
+msgstr "Begivenhedens afslutning"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Report mailed at"
+msgstr "Rapport sendt pr."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Last error"
+msgstr "Sidste fejl"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Stripe payout"
+msgstr "Stripe-udbetaling"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Stripe balance transaction"
+msgstr "Stripe-saldotransaktion"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Stripe status"
+msgstr "Stripe-status"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Arrival date"
+msgstr "Ankomst-dato"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Amount (minor units)"
+msgstr "Beløb (mindste enhed)"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Description"
+msgstr "Beskrivelse"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Report"
+msgstr "Rapport"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Finished"
+msgstr "Afholdt"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Ticket revenue"
+msgstr "Billetindtægt"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Stripe fee"
+msgstr "Stripe-gebyr"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Net"
+msgstr "Netto"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Paid out"
+msgstr "Udbetalt i alt"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Transferred"
+msgstr "Overført"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "PDF"
+msgstr "PDF"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Free event"
+msgstr "Gratis begivenhed"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Awaiting delay"
+msgstr "Venter på forsinkelse"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Due to be paid"
+msgstr "Klar til udbetaling"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Awaiting Stripe balance"
+msgstr "Afventer Stripe-saldo"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Paying out…"
+msgstr "Udbetaler…"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Payout failed"
+msgstr "Udbetaling fejlede"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Report not found."
+msgstr "Rapporten blev ikke fundet."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "There is nothing left to pay out for this event."
+msgstr "Der er intet at udbetale for denne begivenhed."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The remaining amount (%1$s) is below the minimum payout amount (%2$s). No payout is created."
+msgstr "Restbeløbet (%1$s) er under minimumsudbetalingen (%2$s). Ingen udbetaling oprettes."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The payout amount cannot exceed the remaining net amount."
+msgstr "Udbetalingsbeløbet må ikke overstige det resterende netto-beløb."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The Stripe balance could not be read. No payout is created."
+msgstr "Stripe-saldoen kunne ikke læses. Ingen udbetaling oprettes."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Awaiting Stripe balance: the account holds %1$s of the due %2$s. The payout is postponed."
+msgstr "Afventer Stripe-saldo: kontoen rummer %1$s af de %2$s, der skal udbetales. Udbetalingen er udskudt."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "A payout for this event is already being processed."
+msgstr "En udbetaling for denne begivenhed behandles allerede."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Ticket payout — %s"
+msgstr "Udbetaling af billetter — %s"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Ticket payout"
+msgstr "Udbetaling af billetter"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Ticket payout failed for %s"
+msgstr "Billetudbetalingen fejlede for %s"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The automatic ticket payout for \"%1$s\" failed. The report is flagged in the Finance tab and the payout is retried tomorrow. Error: %2$s"
+msgstr "Den automatiske billetudbetaling for \"%1$s\" fejlede. Rapporten er markeret på Finance-siden, og udbetalingen prøves igen i morgen. Fejl: %2$s"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The report email could not be sent."
+msgstr "Rapport-e-mailen kunne ikke sendes."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "No event report receivers are configured. Add email addresses under Vis → Tickets."
+msgstr "Ingen rapportmodtagere er indstillet. Tilføj e-mailadresser under Vis → Billetter."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The report has payout postings and cannot be deleted."
+msgstr "Rapporten har udbetalingsposteringer og kan ikke slettes."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The PDF could not be generated."
+msgstr "PDF'en kunne ikke genereres."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The PDF library is unavailable."
+msgstr "PDF-biblioteket er ikke tilgængeligt."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Payout amount must be positive."
+msgstr "Udbetalingsbeløbet skal være positivt."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Financial summary"
+msgstr "Økonomisk oversigt"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Net amount"
+msgstr "Netto-beløb"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Paid out: %1$s — remaining: %2$s"
+msgstr "Udbetalt: %1$s — resterende: %2$s"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Payout postings"
+msgstr "Udbetalingsposteringer"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Created"
+msgstr "Oprettet"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Unit price"
+msgstr "Enhedspris"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Revenue"
+msgstr "Indtægt"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Ticket buyers"
+msgstr "Billetkøbere"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Finished: %1$s — %2$s"
+msgstr "Afholdt: %1$s — %2$s"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "The automatic report for the event <strong>%1$s</strong> is ready. Net ticket sales: %2$s. The report is attached as a PDF."
+msgstr "Den automatiske rapport for begivenheden <strong>%1$s</strong> er klar. Netto-billetindtægt: %2$s. Rapporten er vedhæftet som PDF."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Open the <a href=\"%s\">Finance page</a> to manage payouts."
+msgstr "Åbn <a href=\"%s\">Finance-siden</a> for at håndtere udbetalinger."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Ticket report — %s"
+msgstr "Billetrapport — %s"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Payout"
+msgstr "Udbetaling"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Payout failed."
+msgstr "Udbetalen fejlede."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Payout created."
+msgstr "Udbetaling oprettet."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Full remaining amount is prefilled. The amount cannot exceed the remaining net amount and must be at least the Stripe minimum."
+msgstr "Hele restbeløbet er fyldt i forvejen. Beløbet må ikke overstige det resterende netto-beløb og skal være mindst Stripe-minimum."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Delete report"
+msgstr "Slet rapport"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Delete this event report?"
+msgstr "Slet denne begivenhedsrapport?"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Report deleted."
+msgstr "Rapport slettet."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Could not delete the report — payout postings block deletion."
+msgstr "Rapporten kunne ikke slettes — udbetalingsposteringer blokerer sletning."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Send report email"
+msgstr "Send rapport-e-mail"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Email the report PDF to the configured receivers?"
+msgstr "Send rapport-PDF'en til de indstillede modtagere?"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Send"
+msgstr "Send"
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Report email sent."
+msgstr "Rapport-e-mail sendt."
+
+#: includes/class-pcio-vis-tickets-reports.php
+#, php-format
+msgid "Could not send the report email."
+msgstr "Rapport-e-mailen kunne ikke sendes."
+
+msgid "Note"
+msgstr "Bemærkning"
+
+msgid "Ticket payouts & event reports"
+msgstr "Billetudbetalinger og begivenhedsrapporter"
+
+msgid "Refreshes ticket event reports and pays out finished events through Stripe after the configured delay (Vis → Tickets → Event reports). Reports awaiting the Stripe balance are retried on the next run, and the report PDF is emailed to the configured receivers."
+msgstr "Opdaterer billetbegivenhedsrapporter og udbetaler afholdte begivenheder via Stripe efter den indstillede forsinkelse (Vis → Billetter → Begivenhedsrapporter). Rapporter, der afventer Stripe-saldoen, forsøges igen ved næste kørsel, og rapport-PDF'en sendes til de indstillede modtagere."
+
+msgid "Automatic payout is disabled. Reports refreshed: %d."
+msgstr "Automatisk udbetaling er slået fra. Rapporter opdateret: %d."
+
+msgid "Reports refreshed: %1$d. Payouts created: %2$d. Awaiting Stripe balance: %3$d. Errors: %4$d."
+msgstr "Rapporter opdateret: %1$d. Udbetalinger oprettet: %2$d. Afventer Stripe-saldo: %3$d. Fejl: %4$d."
+
+msgid "The report scan is not registered yet. Open Vis → Sync Jobs once to register it."
+msgstr "Rapportscanningen er ikke registreret endnu. Åbn Vis → Sync Jobs én gang for at registrere den."
+
+msgid "The report scan job is disabled. Enable “Ticket payouts & event reports” under Vis → Sync Jobs."
+msgstr "Rapportscanningsjobbet er slået fra. Slå “Billetudbetalinger og begivenhedsrapporter” til under Vis → Sync Jobs."
+
+msgid "The scan job is enabled and will be scheduled on the next admin request."
+msgstr "Scanningsjobbet er slået til og bliver planlagt ved næste admin-forespørgsel."
+
+msgid "Stripe mode"
+msgstr "Stripe-tilstand"
+
+msgid "Active Stripe mode: Live. Event reports and payouts below cover live payments only."
+msgstr "Aktiv Stripe-tilstand: Live. Begivenhedsrapporter og udbetalinger herunder dækker kun live-betalinger."
+
+msgid "Active Stripe mode: Test. Event reports and payouts below cover test payments only; test payouts move no real money and report emails are not sent."
+msgstr "Aktiv Stripe-tilstand: Test. Begivenhedsrapporter og udbetalinger herunder dækker kun testbetalinger; testudbetalinger flytter ingen rigtige penge, og der sendes ingen rapport-e-mails."
+
+msgid "This report belongs to Stripe %1$s mode, but the active mode is %2$s. Switch the mode under Vis → Tickets to pay it out."
+msgstr "Denne rapport tilhører Stripe-tilstanden %1$s, men den aktive tilstand er %2$s. Skift tilstanden under Vis → Billetter for at udbetale den."
+
+msgid "The site is in Stripe test mode. Report emails are sent only for live-mode reports."
+msgstr "Siden er i Stripe-testtilstand. Rapport-e-mails sendes kun for rapporter i live-tilstand."
+
+msgid "Ticket fees"
+msgstr "Billetgebyrer"
+
+msgid "Pass fee to buyers"
+msgstr "Videregiv gebyret til købere"
+
+msgid "Add a service fee to every checkout order (tickets, products and renewals)"
+msgstr "Tilføj et servicegebyr til hver ordre (billetter, produkter og fornyelser)"
+
+msgid "A single fee per order — never per item — paid by the buyer on top of the stated prices. It applies to all payment methods alike: a payment-specific surcharge would violate the Stripe rules in the EU. When disabled, the organisation covers the Stripe costs itself."
+msgstr "Et samlet gebyr pr. ordre — aldrig pr. vare — som køberen betaler oveni de angivne priser. Gebyret gælder alle betalingsmetoder ens: et betalingsspecifikt tillæg ville stride mod Stripes EU-regler. Er det slået fra, er organisationen selv for posterne."
+
+msgid "Fee basis per order (kr)"
+msgstr "Gebyrgrundbeløb pr. ordre (kr)"
+
+msgid "Flat amount added to every order. These figures are also used to estimate the Stripe fee in event reports when the exact fees cannot be read from Stripe."
+msgstr "Fast tillæg til hver ordre. Tallene bruges også som estimat for Stripe-gebyret i begivenhedsrapporter, når de præcise gebyrer ikke kan læses fra Stripe."
+
+msgid "Fee percent of order ( % )"
+msgstr "Gebyrprocent af ordren (%)"
+
+msgid "Percentage of the order subtotal, rounded up to whole øre, added together with the base amount."
+msgstr "Procentdel af ordrens delsum, rundet op til hele øre, og lagt sammen med grundbeløbet."
+
+msgid "Service fee"
+msgstr "Servicegebyr"
+
+msgid "Service fee (cents)"
+msgstr "Servicegebyr (øre)"
+
+msgid "Event reports (test)"
+msgstr "Begivenhedsrapporter (test)"
+
+msgid "Stripe mode: Live. Stripe actions use the live keys. Event reports show all orders regardless of mode; payouts are made from the live balance."
+msgstr "Stripe-tilstand: Live. Stripe-handlinger bruger live-nøglerne. Begivenhedsrapporter viser alle ordrer uanset tilstand; udbetalinger sker fra live-saldoen."
+
+msgid "Stripe mode: Test. Stripe actions use test keys only. Event reports and amounts are unaffected; a report containing live payments can only be paid out in Live mode. Report emails follow the cron test setting."
+msgstr "Stripe-tilstand: Test. Stripe-handlinger bruger kun testnøgler. Begivenhedsrapporter og beløb påvirkes ikke; en rapport med live-betalinger kan kun udbetales i Live-tilstand. Rapport-e-mails følger cron-testindstillingen."
+
+msgid "This report mixes Stripe test and live payments and cannot be paid out automatically."
+msgstr "Denne rapport blander Stripe-test- og live-betalinger og kan ikke udbetales automatisk."
+
+msgid "This report contains %1$s payments, but Vis Tickets is using %2$s Stripe keys. Switch the mode under Vis → Tickets to pay it out."
+msgstr "Denne rapport indeholder %1$s-betalinger, men Vis Tickets bruger %2$s Stripe-nøgler. Skift tilstanden under Vis → Billetter for at udbetale den."
+
+msgid "Cron test mode is enabled. Report emails are not sent while testing."
+msgstr "Cron-testtilstand er slået til. Der sendes ikke rapport-e-mails under test."
+
+msgid "Data coverage: %1$d events with confirmed orders, %2$d report rows. Reports are created from orders, not copied from Fjordglimt — if the event count is lower than expected, the ticket-sales import skipped orders (see its plan page: unmatched events / missing ticket types)."
+msgstr "Datadækning: %1$d begivenheder med bekræftede ordrer, %2$d rapportrækker. Rapporter oprettes ud fra ordrer og kopieres ikke fra Fjordglimt — er antallet af begivenheder lavere end forventet, sprang billetsalgsimporten ordrer over (se dens plan-side: ikke-matcede begivenheder / manglende billettyper)."
+
+msgid "Data coverage: %1$d events with confirmed orders, %2$d report rows. Order rows: %3$d (paid %4$d, refunded %5$d, free %6$d). Reports are built from these orders, not copied from Fjordglimt."
+msgstr "Datadækning: %1$d begivenheder med bekræftede ordrer, %2$d rapportrækker. Ordrelinjer: %3$d (betalte %4$d, refunderede %5$d, gratis %6$d). Rapporter bygges ud fra disse ordrer og kopieres ikke fra Fjordglimt."
+
+msgid "Database columns missing on the ticket orders table: %s. Load this page again once to apply the upgrade; if the message stays, the database user cannot alter tables."
+msgstr "Databasekolonner mangler på billetordretabellen: %s. Indlæs siden igen én gang for at gennemføre opgraderingen; står beskeden stadig, kan databasebrugeren ikke ændre tabeller."
+
+msgid "Last database error: %s"
+msgstr "Seneste databasefejl: %s"
+
+msgid "Recreate event reports now"
+msgstr "Gendan begivenhedsrapporter nu"
+
+msgid "Creates one report row per event with confirmed orders. No payouts are made and no emails are sent."
+msgstr "Opretter én rapportrække pr. begivenhed med bekræftede ordrer. Der udbetales ikke, og der sendes ingen e-mails."
+
+msgid "Event reports rebuilt from orders: %d report rows."
+msgstr "Begivenhedsrapporter gendannet ud fra ordrer: %d rapportrækker."
+
+msgid "date"
+msgstr "dato"
+
+msgid "event"
+msgstr "begivenhed"
+
+msgid "revenue"
+msgstr "indtægt"
+
+msgid "refunded"
+msgstr "refunderet"
+
+msgid "fee"
+msgstr "gebyr"
+
+msgid "net"
+msgstr "netto"
+
+msgid "status"
+msgstr "status"
+
+msgid "paid"
+msgstr "udbetalt"
+
+msgid "transferred"
+msgstr "overført"
+
+msgid "stripe"
+msgstr "stripe"
+
+msgid "report"
+msgstr "rapport"
+
+msgid "Already paid out."
+msgstr "Allerede udbetalt."
+
+msgid "Switch Vis Tickets to %s Stripe mode to pay out this report."
+msgstr "Skift Vis Tickets til Stripe-tilstanden %s for at udbetale denne rapport."
+
+msgid "Report logo"
+msgstr "Rapportlogo"
+
+msgid "No logo selected."
+msgstr "Intet logo valgt."
+
+msgid "Select report logo"
+msgstr "Vælg rapportlogo"
+
+msgid "Select logo"
+msgstr "Vælg logo"
+
+msgid "Shown in the header of the event report PDF. A transparent PNG works best (max ~190 × 72 px)."
+msgstr "Vises i headeren på begivenhedsrapportens PDF. En gennemsigtig PNG fungerer bedst (maks. ca. 190 × 72 px)."
+
+msgid "In transit"
+msgstr "Undervejs"
+
+msgid "Failed"
+msgstr "Fejlet"
+
+msgid "Payout report"
+msgstr "Udbetalingsrapport"
+
+msgid "Payouts from Stripe to %s"
+msgstr "Udbetalinger fra Stripe til %s"
+
+msgid "Generated by the Vis ticket system"
+msgstr "Genereret af Vis billetsystem"
+
+msgid "Report date: %s"
+msgstr "Rapportdato: %s"
+
+msgid "Total ticket revenue"
+msgstr "Samlet billetindtægt"
+
+msgid "Net ticket revenue"
+msgstr "Netto billetindtægt"
+
+msgid "Total fee income"
+msgstr "Samlet gebyrindtægt"
+
+msgid "Stripe fee share"
+msgstr "Stripe-gebyrandel"
+
+msgid "Total payout to %s"
+msgstr "Samlet udbetaling til %s"
+
+msgid "All amounts include VAT."
+msgstr "Alle beløb er inklusiv moms."
+
+msgid "Remaining amount not yet paid out: %s"
+msgstr "Restbeløb endnu ikke udbetalt: %s"
+
+msgid "Payout date"
+msgstr "Udbetalingsdato"
+
+msgid "Paid in total"
+msgstr "I alt udbetalt"
+
+msgid "Ticket name"
+msgstr "Billetnavn"
+
+msgid "No payouts recorded yet."
+msgstr "Der er endnu ikke registreret udbetalinger."
+
+msgid "No ticket sales recorded."
+msgstr "Der er endnu ikke registreret billetsalg."
+
+msgid "Report PDF"
+msgstr "Rapport-PDF"

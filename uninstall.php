@@ -32,6 +32,13 @@ $pcio_vis_tickets_options = [
     'pcio_met_from_email',
     'pcio_met_from_name',
     'pcio_met_db_version',
+    'pcio_met_auto_payout',
+    'pcio_met_fee_pass_on',
+    'pcio_met_report_logo_id',
+    'pcio_met_report_delay_days',
+    'pcio_met_fee_base_cents',
+    'pcio_met_fee_percent',
+    'pcio_met_report_receivers',
 ];
 
 foreach ( $pcio_vis_tickets_options as $pcio_vis_tickets_option ) {
@@ -40,3 +47,5 @@ foreach ( $pcio_vis_tickets_options as $pcio_vis_tickets_option ) {
 
 // Clear the daily cleanup cron in case it survived deactivation.
 wp_clear_scheduled_hook( 'pcio_met_cleanup_pending' );
+wp_clear_scheduled_hook( 'pcio_me_cron_ticket_event_reports' );
+wp_clear_scheduled_hook( 'pcio_met_reports_daily' );

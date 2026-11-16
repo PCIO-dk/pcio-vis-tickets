@@ -3,7 +3,7 @@
 Plugin Name:  PCIO VIS Tickets
 Plugin URI:   https://www.pcio.dk/
 Description:  Adds paid (Stripe) and free ticket sales to PCIO VIS Member Event. Events with a guest limit sell tickets to the public; per-event ticket types, a secure checkout, PDF tickets with QR codes, and refunds. Events without a limit keep the member join/interested/not-joining signup.
-Version:      1.1.0
+Version:      1.2.0
 Author:       PCIO
 Author URI:   https://www.pcio.dk
 Requires at least: 6.2
@@ -22,13 +22,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'PCIO_VIS_TICKETS_FILE', __FILE__ );
 define( 'PCIO_VIS_TICKETS_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'PCIO_VIS_TICKETS_URL',  plugin_dir_url( __FILE__ ) );
-define( 'PCIO_VIS_TICKETS_VERSION', '1.0.0' );
+define( 'PCIO_VIS_TICKETS_VERSION', '1.6.0' );
+define( 'PCIO_VIS_TICKETS_DB_VERSION', '1.9.4' );
+define( 'PCIO_VIS_TICKETS_CHECKOUT_ASSET_VERSION', '1.6.0.1' );
 
 // PDF (Dompdf) + QR libraries are provided by the base Member Event plugin
 // (member-event/vendor, loaded via PCIO_VIS_PDF). Tickets requires member-event.
 
 require_once PCIO_VIS_TICKETS_DIR . 'includes/class-pcio-vis-tickets-db.php';
 require_once PCIO_VIS_TICKETS_DIR . 'includes/class-pcio-vis-tickets-stripe.php';
+require_once PCIO_VIS_TICKETS_DIR . 'includes/class-pcio-vis-tickets-reports.php';
+require_once PCIO_VIS_TICKETS_DIR . 'includes/class-pcio-vis-tickets-fees.php';
 require_once PCIO_VIS_TICKETS_DIR . 'includes/class-pcio-vis-tickets-pdf.php';
 require_once PCIO_VIS_TICKETS_DIR . 'includes/class-pcio-vis-tickets-fulfillment.php';
 require_once PCIO_VIS_TICKETS_DIR . 'includes/class-pcio-vis-tickets-rest.php';
@@ -40,11 +44,10 @@ class PCIO_VIS_Tickets_Plugin {
 
     /**
      * Custom capabilities and the WP roles they are granted to on activation.
+     * Tickets use event-level rights (see PCIO_VIS_Events_DB::can_edit_event) and
+     * vis_manage_finance for refunds, so the extension owns no capabilities.
      */
-    const CAP_ROLE_MAP = [
-        'vis_tickets_manage' => [ 'editor', 'administrator' ],
-        'vis_tickets_refund' => [ 'editor', 'administrator' ],
-    ];
+    const CAP_ROLE_MAP = [];
 
     const CRON_CLEANUP = 'pcio_met_cleanup_pending';
 
@@ -81,13 +84,20 @@ class PCIO_VIS_Tickets_Plugin {
                 }
             }
         }
-        // Public checkout pages are served from rewrite rules registered on
-        // 'init'; flush so /tickets/checkout etc. resolve.
-        ( new PCIO_VIS_Tickets_Frontend() )->register_rewrites();
-        flush_rewrite_rules();
+        $frontend = new PCIO_VIS_Tickets_Frontend();
+        $frontend->ensure_public_pages();
+        $frontend->register_rewrites();
+        flush_rewrite_rules( false );
+        update_option( PCIO_VIS_Tickets_Frontend::CHECKOUT_REWRITE_OPTION, PCIO_VIS_TICKETS_VERSION );
 
         if ( ! wp_next_scheduled( self::CRON_CLEANUP ) ) {
             wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CRON_CLEANUP );
+        }
+
+        // The event-report/payout scan is a registered core Sync Job; seed it
+        // now so it appears on Vis → Sync Jobs without waiting for admin_init.
+        if ( class_exists( 'PCIO_VIS_Sync_DB' ) ) {
+            PCIO_VIS_Tickets_Integration::seed_sync_job();
         }
     }
 
@@ -98,6 +108,10 @@ class PCIO_VIS_Tickets_Plugin {
             }
         }
         wp_clear_scheduled_hook( self::CRON_CLEANUP );
+        // Registry hook (pcio_me_cron_<cron_name>) from the core Sync Jobs manager.
+        wp_clear_scheduled_hook( 'pcio_me_cron_ticket_event_reports' );
+        // Legacy direct hook used by the first iteration of the reports feature.
+        wp_clear_scheduled_hook( 'pcio_met_reports_daily' );
         flush_rewrite_rules();
     }
 

@@ -14,18 +14,182 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class PCIO_VIS_Tickets_Frontend {
 
+    const CHECKOUT_PAGE_OPTION = 'pcio_met_checkout_page_id';
+    const ACCEPTED_PAGE_OPTION = 'pcio_met_accepted_page_id';
+    const REJECTED_PAGE_OPTION = 'pcio_met_rejected_page_id';
+    const CHECKOUT_REWRITE_OPTION = 'pcio_met_checkout_rewrite_version';
+    const CHECKOUT_SHORTCODE = 'pcio_met_checkout';
+    const RESULT_SHORTCODE = 'pcio_met_result';
+
+    private bool $checkout_prepared = false;
+    private ?array $checkout_view = null;
+    private bool $result_prepared = false;
+    private ?array $result_view = null;
+
     public function register(): void {
         add_action( 'init',              [ $this, 'register_rewrites' ] );
+        add_action( 'admin_init',        [ $this, 'maybe_upgrade_checkout_page' ] );
         add_action( 'template_redirect', [ $this, 'serve_templates'   ] );
+        add_shortcode( self::CHECKOUT_SHORTCODE, [ $this, 'render_checkout_shortcode' ] );
+        add_shortcode( self::RESULT_SHORTCODE, [ $this, 'render_result_shortcode' ] );
     }
 
     public function register_rewrites(): void {
-        add_rewrite_rule( '^tickets/checkout/?$', 'index.php?pcio_met=checkout', 'top' );
-        add_rewrite_rule( '^tickets/accepted/?$', 'index.php?pcio_met=accepted', 'top' );
-        add_rewrite_rule( '^tickets/rejected/?$', 'index.php?pcio_met=rejected', 'top' );
+        $page_id = (int) get_option( self::CHECKOUT_PAGE_OPTION, 0 );
+        $checkout_query = $page_id > 0
+            ? 'index.php?page_id=' . $page_id . '&pcio_met=checkout'
+            : 'index.php?pcio_met=checkout';
+        add_rewrite_rule( '^tickets/checkout/?$', $checkout_query, 'top' );
+        $accepted_id = (int) get_option( self::ACCEPTED_PAGE_OPTION, 0 );
+        $rejected_id = (int) get_option( self::REJECTED_PAGE_OPTION, 0 );
+        $accepted_query = $accepted_id > 0
+            ? 'index.php?page_id=' . $accepted_id . '&pcio_met=accepted'
+            : 'index.php?pcio_met=accepted';
+        $rejected_query = $rejected_id > 0
+            ? 'index.php?page_id=' . $rejected_id . '&pcio_met=rejected'
+            : 'index.php?pcio_met=rejected';
+        add_rewrite_rule( '^tickets/accepted/?$', $accepted_query, 'top' );
+        add_rewrite_rule( '^tickets/rejected/?$', $rejected_query, 'top' );
         add_rewrite_rule( '^tickets/download/?$', 'index.php?pcio_met=download', 'top' );
         add_rewrite_rule( '^tickets/checkin/?$', 'index.php?pcio_met=checkin', 'top' );
         add_rewrite_tag( '%pcio_met%', '([^&]+)' );
+    }
+
+    public function ensure_checkout_page(): int {
+        return $this->ensure_ticket_page(
+            'checkout',
+            __( 'Ticket checkout', 'pcio-vis-tickets' ),
+            self::CHECKOUT_SHORTCODE,
+            self::CHECKOUT_PAGE_OPTION
+        );
+    }
+
+    public function ensure_result_pages(): array {
+        return [
+            'accepted' => $this->ensure_ticket_page(
+                'accepted',
+                __( 'Ticket order accepted', 'pcio-vis-tickets' ),
+                self::RESULT_SHORTCODE,
+                self::ACCEPTED_PAGE_OPTION
+            ),
+            'rejected' => $this->ensure_ticket_page(
+                'rejected',
+                __( 'Ticket order rejected', 'pcio-vis-tickets' ),
+                self::RESULT_SHORTCODE,
+                self::REJECTED_PAGE_OPTION
+            ),
+        ];
+    }
+
+    public function ensure_public_pages(): bool {
+        $checkout = $this->ensure_checkout_page();
+        $results  = $this->ensure_result_pages();
+        return $checkout > 0 && $results['accepted'] > 0 && $results['rejected'] > 0;
+    }
+
+    private function ensure_ticket_page( string $slug, string $title, string $shortcode, string $option ): int {
+        $page_id = (int) get_option( $option, 0 );
+        $page    = $page_id > 0 ? get_post( $page_id ) : null;
+        if ( ! $page || 'page' !== $page->post_type || 'trash' === $page->post_status ) {
+            $page = get_page_by_path( 'tickets/' . $slug );
+        }
+
+        if ( ! $page || 'page' !== $page->post_type || 'trash' === $page->post_status ) {
+            $parent_id = $this->ensure_tickets_parent();
+            if ( $parent_id < 1 ) {
+                return 0;
+            }
+            $page_id = wp_insert_post( [
+                'post_type'      => 'page',
+                'post_status'    => 'publish',
+                'post_title'     => $title,
+                'post_name'      => $slug,
+                'post_parent'    => $parent_id,
+                'post_content'   => '[' . $shortcode . ']',
+                'comment_status' => 'closed',
+                'ping_status'    => 'closed',
+            ], true );
+            if ( is_wp_error( $page_id ) || ! $page_id ) {
+                return 0;
+            }
+            $page = get_post( (int) $page_id );
+        }
+
+        if ( ! $page || 'page' !== $page->post_type ) {
+            return 0;
+        }
+
+        $page_id = (int) $page->ID;
+        if ( false === strpos( (string) $page->post_content, '[' . $shortcode ) ) {
+            $content = trim( (string) $page->post_content );
+            $content = '' !== $content
+                ? $content . "\n\n" . '[' . $shortcode . ']'
+                : '[' . $shortcode . ']';
+            wp_update_post( [ 'ID' => $page_id, 'post_content' => $content ] );
+        }
+
+        update_option( $option, $page_id );
+        return $page_id;
+    }
+
+    private function ensure_tickets_parent(): int {
+        $parent = get_page_by_path( 'tickets' );
+        if ( $parent && 'page' === $parent->post_type && 'trash' !== $parent->post_status ) {
+            return (int) $parent->ID;
+        }
+        $parent_id = wp_insert_post( [
+            'post_type'      => 'page',
+            'post_status'    => 'publish',
+            'post_title'     => __( 'Tickets', 'pcio-vis-tickets' ),
+            'post_name'      => 'tickets',
+            'post_content'   => '',
+            'comment_status' => 'closed',
+            'ping_status'    => 'closed',
+        ], true );
+        return is_wp_error( $parent_id ) || ! $parent_id ? 0 : (int) $parent_id;
+    }
+
+    public function maybe_upgrade_checkout_page(): void {
+        $previous_ids = [
+            (int) get_option( self::CHECKOUT_PAGE_OPTION, 0 ),
+            (int) get_option( self::ACCEPTED_PAGE_OPTION, 0 ),
+            (int) get_option( self::REJECTED_PAGE_OPTION, 0 ),
+        ];
+        if ( ! $this->ensure_public_pages() ) {
+            return;
+        }
+        $current_ids = [
+            (int) get_option( self::CHECKOUT_PAGE_OPTION, 0 ),
+            (int) get_option( self::ACCEPTED_PAGE_OPTION, 0 ),
+            (int) get_option( self::REJECTED_PAGE_OPTION, 0 ),
+        ];
+        if ( $previous_ids === $current_ids
+            && PCIO_VIS_TICKETS_VERSION === get_option( self::CHECKOUT_REWRITE_OPTION, '' ) ) {
+            return;
+        }
+        $this->register_rewrites();
+        flush_rewrite_rules( false );
+        update_option( self::CHECKOUT_REWRITE_OPTION, PCIO_VIS_TICKETS_VERSION );
+    }
+
+    private function is_ticket_page_request( string $view ): bool {
+        switch ( $view ) {
+            case 'checkout':
+                $page_id = (int) get_option( self::CHECKOUT_PAGE_OPTION, 0 );
+                break;
+            case 'accepted':
+                $page_id = (int) get_option( self::ACCEPTED_PAGE_OPTION, 0 );
+                break;
+            case 'rejected':
+                $page_id = (int) get_option( self::REJECTED_PAGE_OPTION, 0 );
+                break;
+            default:
+                return false;
+        }
+        return $page_id > 0 && (
+            ( function_exists( 'is_page' ) && is_page( $page_id ) )
+            || (int) get_query_var( 'page_id' ) === $page_id
+        );
     }
 
     public function serve_templates(): void {
@@ -35,14 +199,20 @@ class PCIO_VIS_Tickets_Frontend {
         }
         switch ( $view ) {
             case 'checkout':
+                if ( $this->is_ticket_page_request( 'checkout' ) ) {
+                    $this->prepare_checkout();
+                    return;
+                }
                 $this->serve_checkout();
-                break;
+                return;
             case 'accepted':
-                $this->serve_result( 'accepted' );
-                break;
             case 'rejected':
-                $this->serve_result( 'rejected' );
-                break;
+                if ( $this->is_ticket_page_request( (string) $view ) ) {
+                    $this->prepare_result( (string) $view );
+                    return;
+                }
+                $this->serve_result( (string) $view );
+                return;
             case 'download':
                 $this->serve_download();
                 break;
@@ -56,22 +226,35 @@ class PCIO_VIS_Tickets_Frontend {
 
     // ── Checkout ──────────────────────────────────────────────────
 
-    private function serve_checkout(): void {
+    public function render_checkout_shortcode(): string {
+        if ( ! $this->is_ticket_page_request( 'checkout' ) ) {
+            return '';
+        }
+        $this->prepare_checkout();
+        return $this->checkout_view ? $this->checkout_content() : '';
+    }
+
+    private function prepare_checkout(): void {
+        if ( $this->checkout_prepared ) {
+            return;
+        }
+        $this->checkout_prepared = true;
+
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public GET param, read-only.
         $event_ref = isset( $_GET['event'] ) ? sanitize_text_field( wp_unslash( $_GET['event'] ) ) : '';
         $event     = $this->resolve_event( $event_ref );
 
-        if ( ! $event || ! PCIO_VIS_Events_DB::is_published( $event ) || PCIO_VIS_Tickets_DB::event_mode( (int) $event['id'] ) !== 'tickets' ) {
+        if ( ! $event || ! PCIO_VIS_Events_DB::is_published( $event ) || PCIO_VIS_Tickets_DB::event_mode( (int) $event['id'] ) !== 'tickets' || ! PCIO_VIS_Events_DB::can_view_event( $event ) ) {
             $this->not_found();
             return;
         }
 
-        $event_id = (int) $event['id'];
-
-        // Only types that can currently be sold are offered.
-        $types = [];
+        $event_id            = (int) $event['id'];
+        $registered_required = PCIO_VIS_Tickets_DB::requires_registered_customer( $event );
+        $registered_customer = $registered_required ? PCIO_VIS_Tickets_DB::current_registered_customer() : null;
+        $types                = [];
         foreach ( PCIO_VIS_Tickets_DB::get_types( $event_id ) as $type ) {
-            if ( ! PCIO_VIS_Tickets_DB::type_on_sale( $type ) ) {
+            if ( ! PCIO_VIS_Tickets_DB::type_on_sale( $type ) || ! PCIO_VIS_Tickets_DB::can_purchase_type( $type, $event ) ) {
                 continue;
             }
             $types[] = [
@@ -84,20 +267,67 @@ class PCIO_VIS_Tickets_Frontend {
         }
 
         $settings = PCIO_VIS_Tickets_DB::get_settings( $event_id );
+        $purchase = PCIO_VIS_Tickets_DB::purchase_state( $event );
         $currency = PCIO_VIS_Tickets_Admin::currency();
+        $notice   = 'on_sale' === $purchase['state'] ? '' : $purchase['message'];
+        $already_registered = false;
 
-        $this->enqueue_checkout_assets( $event_id, $types, $settings, $currency );
+        if ( $registered_required && ! $registered_customer ) {
+            $types  = [];
+            $notice = __( 'Please sign in with the member account required for this event.', 'pcio-vis-tickets' );
+        } elseif ( $registered_customer ) {
+            $already_registered = PCIO_VIS_Tickets_DB::member_has_active_guest_signup( $event_id, (int) $registered_customer['member_id'] )
+                || PCIO_VIS_Tickets_DB::member_has_entrance_order( $event_id, (int) $registered_customer['member_id'] );
+            $settings['max_entrance_per_buyer'] = 1;
+            if ( $already_registered ) {
+                $types = array_values(
+                    array_filter( $types, static fn( $type ) => empty( $type['is_entrance'] ) )
+                );
+                if ( ! $types ) {
+                    $notice = __( 'This account is already registered for this event.', 'pcio-vis-tickets' );
+                }
+            }
+        }
 
-        $pcio_met_view = [
-            'event'     => $event,
-            'event_id'  => $event_id,
-            'title'     => (string) $event['title'],
-            'types'     => $types,
-            'currency'  => $currency,
-            'soldout'   => (int) $settings['is_soldout'] === 1 || empty( $types ),
-            'event_url' => home_url( 'events/' . rawurlencode( $event['slug'] ?? '' ) . '/' ),
+        $this->checkout_view = [
+            'event'               => $event,
+            'event_id'            => $event_id,
+            'title'               => (string) $event['title'],
+            'types'               => $types,
+            'currency'            => $currency,
+            'soldout'             => empty( $types ),
+            'restricted'          => 'restricted' === $purchase['state'],
+            'notice'              => $notice,
+            'event_url'           => home_url( 'events/' . rawurlencode( $event['slug'] ?? '' ) . '/' ),
+            'registered_customer' => $registered_customer,
+            'already_registered'  => $already_registered,
         ];
-        $this->render( __DIR__ . '/../templates/checkout.php', $pcio_met_view );
+
+        status_header( 200 );
+        nocache_headers();
+        $this->enqueue_checkout_assets( $event_id, $types, $settings, $currency );
+    }
+
+    private function checkout_content(): string {
+        if ( ! $this->checkout_view ) {
+            return '';
+        }
+        $pcio_met_view = $this->checkout_view;
+        ob_start();
+        require __DIR__ . '/../templates/checkout.php';
+        return (string) ob_get_clean();
+    }
+
+    private function serve_checkout(): void {
+        $this->prepare_checkout();
+        if ( ! $this->checkout_view ) {
+            return;
+        }
+        get_header();
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped inside templates/checkout.php.
+        echo $this->checkout_content();
+        get_footer();
+        exit;
     }
 
     private function enqueue_checkout_assets( int $event_id, array $types, array $settings, string $currency ): void {
@@ -105,7 +335,7 @@ class PCIO_VIS_Tickets_Frontend {
             'pcio-met-checkout',
             plugins_url( 'assets/checkout.css', PCIO_VIS_TICKETS_FILE ),
             [],
-            PCIO_VIS_TICKETS_VERSION
+            PCIO_VIS_TICKETS_CHECKOUT_ASSET_VERSION
         );
         wp_enqueue_script(
             'pcio-met-checkout',
@@ -145,28 +375,64 @@ class PCIO_VIS_Tickets_Frontend {
 
     // ── Accepted / rejected result pages ──────────────────────────
 
-    private function serve_result( string $view ): void {
+    public function render_result_shortcode(): string {
+        $view = (string) get_query_var( 'pcio_met' );
+        if ( ! in_array( $view, [ 'accepted', 'rejected' ], true ) || ! $this->is_ticket_page_request( $view ) ) {
+            return '';
+        }
+        $this->prepare_result( $view );
+        return $this->result_view ? $this->result_content() : '';
+    }
+
+    private function prepare_result( string $view ): void {
+        if ( $this->result_prepared ) {
+            return;
+        }
+        $this->result_prepared = true;
+
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public GET token, read-only.
         $token = isset( $_GET['order'] ) ? sanitize_text_field( wp_unslash( $_GET['order'] ) ) : '';
         $order = $token ? PCIO_VIS_Tickets_DB::get_order_by_token( $token ) : null;
-
-        wp_enqueue_style(
-            'pcio-met-checkout',
-            plugins_url( 'assets/checkout.css', PCIO_VIS_TICKETS_FILE ),
-            [],
-            PCIO_VIS_TICKETS_VERSION
-        );
-
         $event = $order ? PCIO_VIS_Events_DB::get( (int) $order['event_id'] ) : null;
 
-        $pcio_met_view = [
+        $this->result_view = [
             'view'      => $view,
             'order'     => $order,
             'event'     => $event,
             'event_url' => $event ? home_url( 'events/' . rawurlencode( $event['slug'] ?? '' ) . '/' ) : home_url( '/' ),
             'retry_url' => $event ? add_query_arg( 'event', rawurlencode( $event['slug'] ?? '' ), home_url( 'tickets/checkout/' ) ) : home_url( '/' ),
         ];
-        $this->render( __DIR__ . '/../templates/result.php', $pcio_met_view );
+
+        status_header( 200 );
+        nocache_headers();
+        wp_enqueue_style(
+            'pcio-met-checkout',
+            plugins_url( 'assets/checkout.css', PCIO_VIS_TICKETS_FILE ),
+            [],
+            PCIO_VIS_TICKETS_CHECKOUT_ASSET_VERSION
+        );
+    }
+
+    private function result_content(): string {
+        if ( ! $this->result_view ) {
+            return '';
+        }
+        $pcio_met_view = $this->result_view;
+        ob_start();
+        require __DIR__ . '/../templates/result.php';
+        return (string) ob_get_clean();
+    }
+
+    private function serve_result( string $view ): void {
+        $this->prepare_result( $view );
+        if ( ! $this->result_view ) {
+            return;
+        }
+        get_header();
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped inside templates/result.php.
+        echo $this->result_content();
+        get_footer();
+        exit;
     }
 
     // ── Tokenised PDF download ────────────────────────────────────
@@ -319,6 +585,10 @@ class PCIO_VIS_Tickets_Frontend {
         $end        = (string) ( $event['end_datetime'] ?? '' );
         $in_window  = $now >= $start && $now <= $end;
         $customer   = ! empty( $order['customer_id'] ) ? PCIO_VIS_Tickets_DB::get_customer( (int) $order['customer_id'] ) : null;
+        $buyer      = '';
+        if ( $in_window ) {
+            $buyer = $customer && ! empty( $customer['name'] ) ? (string) $customer['name'] : (string) $order['email'];
+        }
         return [
             'ok'          => true,
             'ticket'      => $ticket,
@@ -329,7 +599,7 @@ class PCIO_VIS_Tickets_Frontend {
             'in_window'   => $in_window,
             'window_from' => $start,
             'window_to'   => $end,
-            'buyer'       => $customer && ! empty( $customer['name'] ) ? (string) $customer['name'] : (string) $order['email'],
+            'buyer'       => $buyer,
         ];
     }
 
